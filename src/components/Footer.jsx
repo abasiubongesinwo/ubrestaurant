@@ -39,7 +39,14 @@ const Footer = () => {
 				<div className="grid md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8">
 					<div className="lg:col-span-5">
 						<div className="flex gap-5 mb-6 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent">
-							<img src={UbLogo} alt="UB Restaurant Logo" className="h-20 w-auto" />
+							<img
+								src={UbLogo}
+								alt="UB Restaurant Logo"
+								loading="eager"
+								decoding="async"
+								fetchPriority="high"
+								className="h-20 w-auto"
+							/>
 							<p className="text-gray-400 text-lg leading-relaxed max-w-md mb-10">
 								Delivering fresh, fast, and flavorful meals across Lagos. Order
 								online or pay cash on delivery every time.

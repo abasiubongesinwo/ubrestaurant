@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Popup } from "paystack-js";
 import { Link } from "react-router-dom";
 import {
@@ -18,7 +18,7 @@ import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 
 const EMAIL_PATTERN = /\S+@\S+\.\S+/;
-const PAYSTACK_PLACEHOLDER_KEY = "pk_test_your_paystack_public_key_here";
+const PAYSTACK_PLACEHOLDER_KEY = "pk_test_xxxxxxxxxxxxxxxxxxxxxxxx";
 
 const createOrderId = () => {
 	const reference = globalThis.crypto?.randomUUID?.();
@@ -37,29 +37,31 @@ const Cart = () => {
 	const { items, total, clearCart } = useCart();
 	const { addOrder } = useAdmin();
 	const { user, isAuthenticated } = useAuth();
-	const [customerName, setCustomerName] = useState("");
-	const [customerEmail, setCustomerEmail] = useState("");
-	const [customerPhone, setCustomerPhone] = useState("");
-	const [customerPhoneSecondary, setCustomerPhoneSecondary] = useState("");
+
+	const [customerNameLocal, setCustomerNameLocal] = useState("");
+	const [customerEmailLocal, setCustomerEmailLocal] = useState("");
+	const [customerPhoneLocal, setCustomerPhoneLocal] = useState("");
+	const [customerPhoneSecondaryLocal, setCustomerPhoneSecondaryLocal] =
+		useState("");
 	const [paymentMode, setPaymentMode] = useState("online");
 	const [isProcessing, setIsProcessing] = useState(false);
 
-	// Pre-fill user data when logged in
-	useEffect(() => {
-		if (isAuthenticated && user) {
-			setCustomerName(user.fullName || "");
-			setCustomerEmail(user.email || "");
-			setCustomerPhone(user.phone || "");
-			setCustomerPhoneSecondary(user.phoneSecondary || "");
-		}
-	}, [isAuthenticated, user]);
+	// Local raw values – used only when guest checkout
+	const customerName =
+		isAuthenticated ? user?.fullName || "" : customerNameLocal;
+	const customerEmail =
+		isAuthenticated ? user?.email || "" : customerEmailLocal;
+	const customerPhone =
+		isAuthenticated ? user?.phone || "" : customerPhoneLocal;
+	const customerPhoneSecondary =
+		isAuthenticated ? user?.phoneSecondary || "" : customerPhoneSecondaryLocal;
 
 	const resetCheckoutForm = () => {
 		clearCart();
-		setCustomerName("");
-		setCustomerEmail("");
-		setCustomerPhone("");
-		setCustomerPhoneSecondary("");
+		setCustomerNameLocal("");
+		setCustomerEmailLocal("");
+		setCustomerPhoneLocal("");
+		setCustomerPhoneSecondaryLocal("");
 		setPaymentMode("online");
 		setIsProcessing(false);
 	};
@@ -93,16 +95,23 @@ const Cart = () => {
 	const handleOnlineCheckout = async () => {
 		const paystackKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
 
-		if (!paystackKey || paystackKey === PAYSTACK_PLACEHOLDER_KEY) {
+		if (
+			!paystackKey ||
+			paystackKey === PAYSTACK_PLACEHOLDER_KEY ||
+			!paystackKey.startsWith("pk_")
+		) {
 			toast.error("Paystack public key is not configured yet.");
 			setIsProcessing(false);
 			return;
 		}
 
+		const amountKobo = Math.max(0, Math.round((Number(total) || 0) * 100));
+		const orderId = createOrderId();
+
 		const response = await api.initializePayment({
 			email: customerEmail.trim(),
-			amount: Number(total) || 0,
-			orderId: createOrderId(),
+			amount: amountKobo,
+			orderId,
 		});
 
 		const reference =
@@ -120,7 +129,7 @@ const Cart = () => {
 		const popup = new Popup({
 			key: paystackKey,
 			email: customerEmail.trim(),
-			amount: Math.round((Number(total) || 0) * 100),
+			amount: amountKobo,
 			ref: reference,
 			callback: async (transaction) => {
 				try {
@@ -276,8 +285,10 @@ const Cart = () => {
 										</label>
 										<input
 											type="text"
-											value={customerName}
-											onChange={(event) => setCustomerName(event.target.value)}
+											value={customerNameLocal}
+											onChange={(event) =>
+												setCustomerNameLocal(event.target.value)
+											}
 											className="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all"
 										/>
 									</div>
@@ -288,8 +299,10 @@ const Cart = () => {
 										</label>
 										<input
 											type="email"
-											value={customerEmail}
-											onChange={(event) => setCustomerEmail(event.target.value)}
+											value={customerEmailLocal}
+											onChange={(event) =>
+												setCustomerEmailLocal(event.target.value)
+											}
 											className="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all"
 										/>
 									</div>
@@ -320,8 +333,10 @@ const Cart = () => {
 								</label>
 								<input
 									type="tel"
-									value={customerPhone}
-									onChange={(event) => setCustomerPhone(event.target.value)}
+									value={customerPhoneLocal}
+									onChange={(event) =>
+										setCustomerPhoneLocal(event.target.value)
+									}
 									placeholder="+234 or 0801..."
 									className="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all"
 								/>
@@ -333,9 +348,9 @@ const Cart = () => {
 								</label>
 								<input
 									type="tel"
-									value={customerPhoneSecondary}
+									value={customerPhoneSecondaryLocal}
 									onChange={(event) =>
-										setCustomerPhoneSecondary(event.target.value)
+										setCustomerPhoneSecondaryLocal(event.target.value)
 									}
 									placeholder="Backup number for delivery"
 									className="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all"

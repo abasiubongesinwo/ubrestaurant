@@ -151,8 +151,10 @@ const Gallery = () => {
 								<img
 									src={image.src}
 									alt={image.alt}
-									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
 									loading="lazy"
+									decoding="async"
+									fetchPriority="low"
+									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
 								/>
 							</div>
 							<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-6">

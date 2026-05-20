@@ -18,11 +18,25 @@ const Services = () => {
 			try {
 				setLoading(true);
 				const data = await api.getProducts();
-				const filteredProducts = data.filter(
-					(product) => product.category === "product",
+				// Debug: log API response and counts to help diagnose missing items
+				console.debug(
+					"API /products response (count):",
+					data?.length ?? 0,
+					data,
 				);
-				const menuItems = filteredProducts.length ? filteredProducts : data;
-				setProducts(menuItems);
+				console.debug(
+					"Products description presence:",
+					data.map((d) => ({
+						id: d.id || d._id || d.title,
+						hasDescription: !!d.description,
+					})),
+				);
+				console.debug(
+					"Unique categories:",
+					Array.from(new Set(data.map((d) => d.category))).slice(0, 20),
+				);
+				// Use full dataset from backend (do not filter by category) so all products show
+				setProducts(data);
 			} catch (error) {
 				console.error(error);
 				toast.error("Failed to load menu items");
@@ -75,11 +89,14 @@ const Services = () => {
 							initial={{ opacity: 0, y: 30 }}
 							whileInView={{ opacity: 1, y: 0 }}
 							transition={{ delay: index * 0.07 }}>
-							<Card className="group h-full overflow-hidden hover:shadow-2xl transition-all duration-500 border-2 border-gray-200">
-								<div className="relative h-64 overflow-hidden">
+							<Card className="group h-full flex flex-col p-4 sm:p-6 hover:shadow-2xl transition-all duration-500 border-2 border-gray-200">
+								<div className="relative h-36 sm:h-40 md:h-48 lg:h-64 overflow-hidden">
 									<img
 										src={item.image}
 										alt={item.title}
+										loading="lazy"
+										decoding="async"
+										fetchPriority="low"
 										className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
 									/>
 									{/* <div className="absolute top-4 right-4 backdrop-blur-sm text-gray-900 px-4 py-1.5 rounded-full text-sm font-bold shadow-md"> */}
@@ -88,15 +105,15 @@ const Services = () => {
 									</div>
 								</div>
 
-								<div className="p-8">
-									<h3 className="text-2xl font-bold text-gray-900 mb-3 line-clamp-2">
+								<div className="p-4 sm:p-6 flex-1 flex flex-col">
+									<h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2 line-clamp-2">
 										{item.title}
 									</h3>
-									<p className="text-gray-600 mb-6 min-h-[72px]">
+									<p className="text-gray-600 mb-3 min-h-[48px] text-sm flex-1">
 										{item.description || "Delicious meal from our chef."}
 									</p>
 									<button
-										className="w-full flex items-center justify-center gap-2 p-3 rounded-2xl bg-black text-white hover:bg-gray-900"
+										className="w-full flex items-center justify-center gap-2 p-2 rounded-2xl bg-black text-white hover:bg-gray-900 text-sm"
 										onClick={() => handleAddToCart(item)}>
 										<ShoppingCart className="w-4 h-4" />
 										Add to Cart

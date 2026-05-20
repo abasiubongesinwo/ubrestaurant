@@ -113,6 +113,9 @@ const Home = () => {
 									<img
 										src={item.image}
 										alt={item.title}
+										loading="lazy"
+										decoding="async"
+										fetchPriority="low"
 										className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 									/>
 									<div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -157,6 +160,9 @@ const Home = () => {
 									<img
 										src={product.image}
 										alt={product.title}
+										loading="lazy"
+										decoding="async"
+										fetchPriority="low"
 										className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
 									/>
 									<div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm text-gray-900 px-4 py-1 rounded-2xl text-sm font-bold">

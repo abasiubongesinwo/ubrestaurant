@@ -65,6 +65,9 @@ const Navbar = () => {
 							<img
 								src={UbLogo}
 								alt="UB Restaurant Logo"
+								loading="eager"
+								decoding="async"
+								fetchPriority="high"
 								className="h-10 w-auto"
 							/>
 						</Link>

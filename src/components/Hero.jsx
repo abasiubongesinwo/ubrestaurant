@@ -10,6 +10,9 @@ const Hero = () => {
 				<img
 					src="/Quick service restaurant interior _ ai generated royalty free stock photo.jpg"
 					alt="Ambiance of our restaurant"
+					loading="eager"
+					decoding="async"
+					fetchPriority="high"
 					className="w-full h-full object-cover object-center opacity-40"
 				/>
 				<div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60" />

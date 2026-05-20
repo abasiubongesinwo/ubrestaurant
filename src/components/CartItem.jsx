@@ -17,6 +17,9 @@ const CartItem = ({ id, name, title, price, image, quantity }) => {
 			<img
 				src={image}
 				alt={itemName}
+				loading="lazy"
+				decoding="async"
+				fetchPriority="low"
 				className="w-24 h-24 object-cover rounded-xl flex-shrink-0"
 			/>
 			<div className="flex-1 min-w-0">
