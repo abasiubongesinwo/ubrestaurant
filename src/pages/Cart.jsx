@@ -83,79 +83,82 @@ const Cart = () => {
 			deliveryMode: "delivery",
 		};
 
-		await addOrder(newOrderData);
+		const orderCreatedResponse = await addOrder(newOrderData);
+		
+		console.log("Order created in admin context:", orderCreatedResponse);
 
 		toast.success("Order placed successfully!", {
 			description: "We will contact you shortly to confirm details.",
 		});
 
 		resetCheckoutForm();
+	window.location.href=orderCreatedResponse?.paymentUrl||"/orders"; // Redirect to payment URL or orders page
 	};
 
-	const handleOnlineCheckout = async () => {
-		const paystackKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+	// const handleOnlineCheckout = async () => {
+	// 	const paystackKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
 
-		if (
-			!paystackKey ||
-			paystackKey === PAYSTACK_PLACEHOLDER_KEY ||
-			!paystackKey.startsWith("pk_")
-		) {
-			toast.error("Paystack public key is not configured yet.");
-			setIsProcessing(false);
-			return;
-		}
+	// 	if (
+	// 		!paystackKey ||
+	// 		paystackKey === PAYSTACK_PLACEHOLDER_KEY ||
+	// 		!paystackKey.startsWith("pk_")
+	// 	) {
+	// 		toast.error("Paystack public key is not configured yet.");
+	// 		setIsProcessing(false);
+	// 		return;
+	// 	}
 
-		const amountKobo = Math.max(0, Math.round((Number(total) || 0) * 100));
-		const orderId = createOrderId();
+	// 	const amountKobo = Math.max(0, Math.round((Number(total) || 0) * 100));
+	// 	const orderId = createOrderId();
 
-		const response = await api.initializePayment({
-			email: customerEmail.trim(),
-			amount: amountKobo,
-			orderId,
-		});
+	// 	const response = await api.initializePayment({
+	// 		email: customerEmail.trim(),
+	// 		amount: amountKobo,
+	// 		orderId,
+	// 	});
 
-		const reference =
-			response?.data?.reference ??
-			response?.reference ??
-			response?.data?.access_code ??
-			response?.access_code;
+	// 	const reference =
+	// 		response?.data?.reference ??
+	// 		response?.reference ??
+	// 		response?.data?.access_code ??
+	// 		response?.access_code;
 
-		if (!reference) {
-			toast.error("Failed to initialize payment");
-			setIsProcessing(false);
-			return;
-		}
+	// 	if (!reference) {
+	// 		toast.error("Failed to initialize payment");
+	// 		setIsProcessing(false);
+	// 		return;
+	// 	}
 
-		const popup = new Popup({
-			key: paystackKey,
-			email: customerEmail.trim(),
-			amount: amountKobo,
-			ref: reference,
-			callback: async (transaction) => {
-				try {
-					const verifyResponse = await api.verifyPayment(transaction.reference);
+	// 	const popup = new Popup({
+	// 		key: paystackKey,
+	// 		email: customerEmail.trim(),
+	// 		amount: amountKobo,
+	// 		ref: reference,
+	// 		callback: async (transaction) => {
+	// 			try {
+	// 				const verifyResponse = await api.verifyPayment(transaction.reference);
 
-					if (!isPaymentVerified(verifyResponse)) {
-						toast.error("Payment verification failed");
-						setIsProcessing(false);
-						return;
-					}
+	// 				if (!isPaymentVerified(verifyResponse)) {
+	// 					toast.error("Payment verification failed");
+	// 					setIsProcessing(false);
+	// 					return;
+	// 				}
 
-					await placeOrder();
-				} catch (error) {
-					console.error("Payment verification failed:", error);
-					toast.error("Payment verification failed");
-					setIsProcessing(false);
-				}
-			},
-			onClose: () => {
-				toast.error("Payment cancelled");
-				setIsProcessing(false);
-			},
-		});
+	// 				await placeOrder();
+	// 			} catch (error) {
+	// 				console.error("Payment verification failed:", error);
+	// 				toast.error("Payment verification failed");
+	// 				setIsProcessing(false);
+	// 			}
+	// 		},
+	// 		onClose: () => {
+	// 			toast.error("Payment cancelled");
+	// 			setIsProcessing(false);
+	// 		},
+	// 	});
 
-		popup.open();
-	};
+	// 	popup.open();
+	// };
 
 	const handleCheckout = async () => {
 		if (items.length === 0) {
@@ -176,25 +179,26 @@ const Cart = () => {
 		}
 
 		// Validate phone numbers for all users
-		if (!customerPhone.trim()) {
-			toast.error("Please enter your primary phone number");
-			return;
-		}
+		// if (!customerPhone.trim()) {
+		// 	toast.error("Please enter your primary phone number");
+		// 	return;
+		// }
 
-		if (!customerPhoneSecondary.trim()) {
-			toast.error("Please enter your secondary phone number");
-			return;
-		}
+		// if (!customerPhoneSecondary.trim()) {
+		// 	toast.error("Please enter your secondary phone number");
+		// 	return;
+		// }
 
 		setIsProcessing(true);
 
 		try {
-			if (paymentMode === "online") {
-				await handleOnlineCheckout();
-				return;
-			}
+			// if (paymentMode === "online") {
+			// 	await handleOnlineCheckout();
+			// 	return;
+			// }
 
 			await placeOrder();
+		
 		} catch (error) {
 			console.error("Checkout failed:", error);
 			toast.error("Failed to process checkout. Please try again.");
