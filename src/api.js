@@ -4,7 +4,7 @@ const API_BASE =
 	"http://localhost:5000";
 
 const unwrapPayload = (result, fallbackKeys = []) => {
-	console.log('Unwrapped API response:', result);
+	// console.log("Unwrapped API response:", result);
 	if (result == null) {
 		return result;
 	}
@@ -22,7 +22,6 @@ const unwrapPayload = (result, fallbackKeys = []) => {
 			return result[key];
 		}
 	}
-
 
 	return result;
 };

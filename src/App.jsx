@@ -19,7 +19,7 @@ import Services from "./pages/Services";
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
 import Cart from "./pages/Cart";
-import AdminLogin from "./pages/AdminLogin";
+import PaymentCallback from "./pages/PaymentCallback";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminCustomers from "./pages/AdminCustomers";
 import AdminLayout from "./components/AdminLayout";
@@ -27,6 +27,7 @@ import OrderTable from "./components/OrderTable";
 import Button from "./components/Button";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
+import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 
 function AppContent() {
@@ -45,10 +46,16 @@ function AppContent() {
 						<Route path="/gallery" element={<Gallery />} />
 						<Route path="/cart" element={<Cart />} />
 						<Route path="/contact" element={<Contact />} />
+						<Route path="/payment/callback" element={<PaymentCallback />} />
 						<Route path="/login" element={<Login />} />
 						<Route path="/signup" element={<SignUp />} />
-						<Route path="/admin/login" element={<AdminLogin />} />
-						<Route path="/admin" element={<AdminLayout />}>
+						<Route
+							path="/admin"
+							element={
+								<ProtectedRoute requireAdmin>
+									<AdminLayout />
+								</ProtectedRoute>
+							}>
 							<Route path="dashboard" element={<AdminDashboard />} />
 							<Route path="orders" element={<OrderTable />} />
 							<Route path="customers" element={<AdminCustomers />} />

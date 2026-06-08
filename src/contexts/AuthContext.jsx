@@ -22,6 +22,19 @@ const getStoredUser = () => {
 	}
 };
 
+const isAdminUser = (user) => {
+	if (!user) return false;
+	const role = String(
+		user.role || user.type || user.roleName || "",
+	).toLowerCase();
+	return (
+		["admin", "superadmin"].includes(role) ||
+		user.isAdmin ||
+		user.admin ||
+		user.email?.toLowerCase() === "admin@ubrestaurant.com"
+	);
+};
+
 const AuthContext = createContext(null);
 
 export const useAuth = () => {
@@ -117,6 +130,7 @@ export const AuthProvider = ({ children }) => {
 			logout,
 			register,
 			isAuthenticated: !!token && !!user,
+			isAdmin: isAdminUser(user),
 		}),
 		[loading, user, token],
 	);

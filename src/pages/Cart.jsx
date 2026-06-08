@@ -80,11 +80,10 @@ const Cart = () => {
 			total: Number(total) || 0,
 			paymentMode,
 			date: new Date().toISOString(),
-			deliveryMode: "delivery",
 		};
 
 		const orderCreatedResponse = await addOrder(newOrderData);
-		
+
 		console.log("Order created in admin context:", orderCreatedResponse);
 
 		toast.success("Order placed successfully!", {
@@ -92,7 +91,7 @@ const Cart = () => {
 		});
 
 		resetCheckoutForm();
-	window.location.href=orderCreatedResponse?.paymentUrl||"/orders"; // Redirect to payment URL or orders page
+		window.location.href = orderCreatedResponse?.paymentUrl || "/orders"; // Redirect to payment URL or orders page
 	};
 
 	// const handleOnlineCheckout = async () => {
@@ -198,7 +197,6 @@ const Cart = () => {
 			// }
 
 			await placeOrder();
-		
 		} catch (error) {
 			console.error("Checkout failed:", error);
 			toast.error("Failed to process checkout. Please try again.");
@@ -370,7 +368,7 @@ const Cart = () => {
 									onChange={(event) => setPaymentMode(event.target.value)}
 									className="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all">
 									<option value="online">Pay Online</option>
-									<option value="cod">Cash on Delivery</option>
+									{/* <option value="cod">Cash on Delivery</option> */}
 								</select>
 							</div>
 						</div>

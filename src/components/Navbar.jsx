@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, ShoppingCart, User, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "../contexts/CartContext";
-import { useAdmin } from "../contexts/AdminContext";
 import { useAuth } from "../contexts/AuthContext";
 import UbLogo from "/ubrestaurantlogo.png";
 
@@ -14,8 +13,7 @@ const Navbar = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const { items } = useCart();
-	const { isAdmin } = useAdmin();
-	const { user, logout, isAuthenticated } = useAuth();
+	const { user, logout, isAuthenticated, isAdmin } = useAuth();
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
@@ -119,6 +117,14 @@ const Navbar = () => {
 										<div className="px-4 py-2 border-b border-gray-100">
 											<p className="text-sm text-gray-700">{user?.email}</p>
 										</div>
+										{isAdmin && (
+											<Link
+												to="/admin/dashboard"
+												onClick={() => setShowProfileMenu(false)}
+												className="w-full block text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+												Admin Dashboard
+											</Link>
+										)}
 										<button
 											onClick={handleLogout}
 											className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
@@ -186,6 +192,14 @@ const Navbar = () => {
 										{user?.email}
 									</p>
 								</div>
+								{isAdmin && (
+									<Link
+										to="/admin/dashboard"
+										onClick={() => setIsOpen(false)}
+										className="w-full block text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+										Admin Dashboard
+									</Link>
+								)}
 								<button
 									onClick={() => {
 										handleLogout();

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import Card from "../components/Card";
 import Button from "../components/Button";
@@ -10,6 +10,7 @@ export default function Login() {
 	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { login } = useAuth();
 
 	const handleSubmit = async (e) => {
@@ -17,9 +18,18 @@ export default function Login() {
 		setLoading(true);
 
 		try {
-			await login(email, password);
+			const user = await login(email, password);
 			toast.success("Login successful!");
-			navigate("/");
+			const from = location.state?.from?.pathname;
+			const destination =
+				(
+					user?.role?.toLowerCase?.() === "admin" ||
+					user?.isAdmin ||
+					user?.admin
+				) ?
+					"/admin/dashboard"
+				:	from || "/";
+			navigate(destination, { replace: true });
 		} catch (error) {
 			toast.error(error.message || "Login failed");
 		} finally {

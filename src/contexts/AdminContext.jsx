@@ -1,6 +1,7 @@
 import { createContext, useContext, useReducer, useEffect } from "react";
 import { toast } from "sonner";
 import { api } from "../api";
+import { useAuth } from "../contexts/AuthContext";
 
 const AdminContext = createContext(null);
 
@@ -42,9 +43,9 @@ export const AdminProvider = ({ children }) => {
 		customers: [],
 	});
 
-	useEffect(() => {
-		const isAdmin = localStorage.getItem("ubrestaurant-admin") === "true";
+	const auth = useAuth();
 
+	useEffect(() => {
 		const loadData = async () => {
 			try {
 				const [ordersRes, customersRes] = await Promise.all([
@@ -55,18 +56,21 @@ export const AdminProvider = ({ children }) => {
 				dispatch({ type: "SET_CUSTOMERS", payload: customersRes });
 			} catch (error) {
 				console.error("Admin data load failed:", error);
-				// Only show error toast if user is actually an admin
-				if (isAdmin) {
+				if (auth.isAdmin) {
 					toast.error("Failed to load admin data");
 				}
 			}
 		};
 
-		// Only load admin data if user is authenticated as admin
-		if (isAdmin) {
+		if (auth.isAdmin) {
 			loadData();
+		} else {
+			dispatch({
+				type: "SET_ADMIN_DATA",
+				payload: { orders: [], customers: [] },
+			});
 		}
-	}, []);
+	}, [auth.isAdmin]);
 
 	const updateOrderStatus = async (id, status) => {
 		try {
@@ -93,7 +97,7 @@ export const AdminProvider = ({ children }) => {
 		}
 	};
 
-	const isAdmin = localStorage.getItem("ubrestaurant-admin") === "true";
+	const isAdmin = auth.isAdmin;
 
 	return (
 		<AdminContext.Provider

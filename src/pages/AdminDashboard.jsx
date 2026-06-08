@@ -26,14 +26,15 @@ const AdminDashboard = () => {
 	);
 	const totalOrders = orders.length;
 	const totalCustomers = customers.length;
-	const pendingOrders = orders.filter((order) => order.status === "pending").length;
+	const pendingOrders = orders.filter(
+		(order) => order.status === "pending",
+	).length;
 	const completedOrders = orders.filter(
 		(order) => order.status === "completed",
 	).length;
 	const completionRate =
 		totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 0;
-	const averageOrderValue =
-		totalOrders > 0 ? totalRevenue / totalOrders : 0;
+	const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
 	if (!isAdmin) {
 		return (
@@ -46,7 +47,7 @@ const AdminDashboard = () => {
 					<p className="text-xl text-gray-600 mb-8">
 						Please log in to access the admin dashboard
 					</p>
-					<Button asLink to="/admin/login" size="lg">
+					<Button asLink to="/login" size="lg">
 						Go to Login
 					</Button>
 				</div>
@@ -55,14 +56,18 @@ const AdminDashboard = () => {
 	}
 
 	return (
-		<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+		<motion.div
+			initial={{ opacity: 0 }}
+			animate={{ opacity: 1 }}
+			className="space-y-8">
 			<div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
 				<div>
 					<h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-amber-900 bg-clip-text text-transparent mb-3">
 						Dashboard
 					</h1>
 					<p className="text-xl text-gray-600">
-						Welcome back! Here&apos;s what&apos;s happening with your restaurant.
+						Welcome back! Here&apos;s what&apos;s happening with your
+						restaurant.
 					</p>
 				</div>
 				<Button
@@ -143,7 +148,10 @@ const AdminDashboard = () => {
 				</div>
 			</div>
 
-			<ChartModal isOpen={showAnalytics} onClose={() => setShowAnalytics(false)} />
+			<ChartModal
+				isOpen={showAnalytics}
+				onClose={() => setShowAnalytics(false)}
+			/>
 		</motion.div>
 	);
 };
