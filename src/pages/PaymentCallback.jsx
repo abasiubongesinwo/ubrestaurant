@@ -13,7 +13,9 @@ function PaymentCallback() {
 				`http://localhost:5000/api/payment/verify/${reference}`,
 			);
 
-			const data = await response.json();
+			const text = await response.text();
+
+			console.log(text);
 
 			if (data.success) {
 				setMessage("Payment successful! Your order has been placed.");

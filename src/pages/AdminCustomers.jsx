@@ -13,7 +13,8 @@ const getCustomerOrders = (customer, orders) => {
 	}
 
 	return orders.filter(
-		(order) => order.customerEmail?.toLowerCase() === customer.email?.toLowerCase(),
+		(order) =>
+			order.customerEmail?.toLowerCase() === customer.email?.toLowerCase(),
 	);
 };
 
@@ -22,7 +23,15 @@ const AdminCustomers = () => {
 	const [search, setSearch] = useState("");
 	const [showCustomerOrders, setShowCustomerOrders] = useState(null);
 
-	const filteredCustomers = customers.filter((customer) => {
+	// const filteredCustomers = customers.filter((customer) => {
+	// 	const name = customer.name?.toLowerCase() || "";
+	// 	const email = customer.email?.toLowerCase() || "";
+	// 	const query = search.toLowerCase();
+
+	// 	return name.includes(query) || email.includes(query);
+	// });
+
+	const filteredCustomers = (customers || []).filter((customer) => {
 		const name = customer.name?.toLowerCase() || "";
 		const email = customer.email?.toLowerCase() || "";
 		const query = search.toLowerCase();
@@ -31,7 +40,10 @@ const AdminCustomers = () => {
 	});
 
 	return (
-		<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+		<motion.div
+			initial={{ opacity: 0 }}
+			animate={{ opacity: 1 }}
+			className="space-y-8">
 			<div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
 				<div>
 					<h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-amber-900 bg-clip-text text-transparent mb-3">
@@ -60,12 +72,15 @@ const AdminCustomers = () => {
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 					{filteredCustomers.map((customer) => {
 						const customerOrders = getCustomerOrders(customer, orders);
-						const latestOrder = customerOrders[0];
-						const totalOrders = customer.ordersCount ?? customerOrders.length;
+
+						const latestOrder = [...customerOrders].sort(
+							(a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+						)[0];
 
 						return (
 							<motion.div
-								key={customer.id || customer._id || customer.email}
+								// key={customer.id || customer._id || customer.email}
+								key={customer.id}
 								whileHover={{ y: -4, scale: 1.02 }}
 								className="group bg-gradient-to-b from-white to-gray-50 rounded-3xl p-8 border border-gray-100 hover:shadow-2xl hover:border-amber-200 transition-all overflow-hidden h-full">
 								<div className="flex items-start justify-between mb-6">

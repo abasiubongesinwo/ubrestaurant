@@ -20,40 +20,37 @@ const AdminDashboard = () => {
 	const { orders, customers, isAdmin } = useAdmin();
 	const [showAnalytics, setShowAnalytics] = useState(false);
 
-	const totalRevenue = orders.reduce(
+	// const totalRevenue = orders.reduce(
+	// 	(sum, order) => sum + (Number(order.total) || 0),
+	// 	0,
+	// );
+	// const totalOrders = orders.length;
+	// const totalCustomers = customers.length;
+	// const pendingOrders = orders.filter(
+	// 	(order) => order.status === "pending",
+	// ).length;
+	// const completedOrders = orders.filter(
+	// 	(order) => order.status === "completed",
+	// ).length;
+	// const completionRate =
+	// 	totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 0;
+	// const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+	const totalRevenue = (orders || []).reduce(
 		(sum, order) => sum + (Number(order.total) || 0),
 		0,
 	);
-	const totalOrders = orders.length;
-	const totalCustomers = customers.length;
-	const pendingOrders = orders.filter(
-		(order) => order.status === "pending",
-	).length;
-	const completedOrders = orders.filter(
-		(order) => order.status === "completed",
-	).length;
-	const completionRate =
-		totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 0;
-	const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
-	if (!isAdmin) {
-		return (
-			<div className="flex items-center justify-center min-h-[60vh]">
-				<div className="text-center p-12">
-					<AlertCircle className="w-20 h-20 text-gray-400 mx-auto mb-6" />
-					<h1 className="text-4xl font-bold text-gray-900 mb-4">
-						Access Denied
-					</h1>
-					<p className="text-xl text-gray-600 mb-8">
-						Please log in to access the admin dashboard
-					</p>
-					<Button asLink to="/login" size="lg">
-						Go to Login
-					</Button>
-				</div>
-			</div>
-		);
-	}
+	const totalOrders = (orders || []).length;
+	const totalCustomers = (customers || []).length;
+
+	const pendingOrders = (orders || []).filter(
+		(o) => o.status === "pending",
+	).length;
+
+	const completedOrders = (orders || []).filter(
+		(o) => o.status === "completed",
+	).length;
 
 	return (
 		<motion.div

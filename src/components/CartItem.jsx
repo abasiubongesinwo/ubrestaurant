@@ -33,7 +33,7 @@ const CartItem = ({ id, name, title, price, image, quantity }) => {
 					Price: {formatCurrency(price)} x {quantity}
 				</p>
 			</div>
-			<div className="flex items-center gap-2 self-start">
+			<div className="items-center gap-2 self-start">
 				<div className="flex items-center bg-gray-100 rounded-lg p-1">
 					<Button
 						variant="outline"

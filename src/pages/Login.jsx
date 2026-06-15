@@ -13,22 +13,43 @@ export default function Login() {
 	const location = useLocation();
 	const { login } = useAuth();
 
+	// const handleSubmit = async (e) => {
+	// 	e.preventDefault();
+	// 	setLoading(true);
+
+	// 	try {
+	// 		const user = await login(email, password);
+	// 		toast.success("Login successful!");
+	// 		const from = location.state?.from?.pathname;
+	// 		const destination =
+	// 			user?.role === "admin" || user?.role === "superadmin" ?
+	// 				"/admin/dashboard"
+	// 			:	from || "/";
+
+	// 		navigate(destination, { replace: true });
+	// 	} catch (error) {
+	// 		toast.error(error.message || "Login failed");
+	// 	} finally {
+	// 		setLoading(false);
+	// 	}
+	// };
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setLoading(true);
 
 		try {
 			const user = await login(email, password);
+
 			toast.success("Login successful!");
+
 			const from = location.state?.from?.pathname;
+
 			const destination =
-				(
-					user?.role?.toLowerCase?.() === "admin" ||
-					user?.isAdmin ||
-					user?.admin
-				) ?
+				user?.role === "admin" || user?.role === "superadmin" ?
 					"/admin/dashboard"
 				:	from || "/";
+
 			navigate(destination, { replace: true });
 		} catch (error) {
 			toast.error(error.message || "Login failed");
@@ -36,6 +57,7 @@ export default function Login() {
 			setLoading(false);
 		}
 	};
+
 	return (
 		<main className="min-h-[calc(100vh-220px)] flex items-center justify-center py-16 px-4">
 			<Card className="w-full max-w-xl">
