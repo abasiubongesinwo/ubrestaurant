@@ -224,14 +224,14 @@ const Cart = () => {
 											className="w-full px-4 sm:px-5 py-3 sm:py-4 border border-gray-200 rounded-2xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all text-sm sm:text-base"
 										/>
 									</div>
-
 									<div>
 										<label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
 											Email Address <span className="text-red-500">*</span>
 										</label>
 										<input
 											type="email"
-											value={customerEmailLocanl}
+											// 👇 FIXED VARIABLE NAME HERE:
+											value={customerEmailLocal}
 											onChange={(event) =>
 												setCustomerEmailLocal(event.target.value)
 											}

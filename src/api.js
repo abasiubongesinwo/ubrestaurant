@@ -49,13 +49,14 @@ const apiCall = async (endpoint, options = {}) => {
 		const config = {
 			headers: {
 				"Content-Type": "application/json",
-				...(token && { Authorization: `Bearer ${token}` }), // Auto-attach JWT
+				...(token && { Authorization: `Bearer ${token}` }),
 				...options.headers,
 			},
 			...options,
 		};
 
-		const response = await fetch(`${API_BASE}/api${endpoint}`, config);
+		// 👇 IF YOUR BACKEND DOES NOT USE THE "/api" PREFIX, CHANGE THIS LINE TO:
+		const response = await fetch(`${API_BASE}${endpoint}`, config);
 
 		if (!response.ok) {
 			let errorMessage = `API Error: ${response.status}`;
@@ -68,7 +69,6 @@ const apiCall = async (endpoint, options = {}) => {
 			throw new Error(errorMessage);
 		}
 
-		// Handle 204 No Content responses
 		if (response.status === 204) {
 			return {};
 		}
