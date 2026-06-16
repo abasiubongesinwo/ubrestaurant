@@ -49,6 +49,8 @@ function AppContent() {
 						<Route path="/payment/callback" element={<PaymentCallback />} />
 						<Route path="/login" element={<Login />} />
 						<Route path="/signup" element={<SignUp />} />
+
+						{/* Admin Routes wrapped with Protected Route */}
 						<Route
 							path="/admin"
 							element={
@@ -62,6 +64,8 @@ function AppContent() {
 							<Route path="settings" element={<div>Settings Page</div>} />
 							<Route index element={<AdminDashboard />} />
 						</Route>
+
+						{/* 404 Fallback Route */}
 						<Route
 							path="*"
 							element={
