@@ -18,24 +18,11 @@ const Services = () => {
 			try {
 				setLoading(true);
 				const data = await api.getProducts();
-				// Debug: log API response and counts to help diagnose missing items
 				console.debug(
 					"API /products response (count):",
 					data?.length ?? 0,
 					data,
 				);
-				console.debug(
-					"Products description presence:",
-					data.map((d) => ({
-						id: d.id || d._id || d.title,
-						hasDescription: !!d.description,
-					})),
-				);
-				console.debug(
-					"Unique categories:",
-					Array.from(new Set(data.map((d) => d.category))).slice(0, 20),
-				);
-				// Use full dataset from backend (do not filter by category) so all products show
 				setProducts(data);
 			} catch (error) {
 				console.error(error);
@@ -65,59 +52,70 @@ const Services = () => {
 
 	return (
 		<div className="min-h-screen bg-gray-50">
-			<Section className="bg-amber-950 text-white">
+			{/* Hero Section */}
+			<Section className="bg-amber-950 text-white px-4 py-12 sm:py-20">
 				<motion.div
 					className="text-center max-w-4xl mx-auto"
 					initial={{ opacity: 0, y: 30 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.8 }}>
-					<h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
-						Order Delicious Meals Online or Cash on Delivery
+					<h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 sm:mb-6 leading-tight">
+						Order Delicious Meals Online
 					</h1>
-					<p className="text-xl text-gray-300 max-w-2xl mx-auto">
+					<p className="text-base sm:text-xl text-gray-300 max-w-2xl mx-auto">
 						Browse our menu, place your order, and choose online payment or pay
 						when your food arrives.
 					</p>
 				</motion.div>
 			</Section>
 
-			<Section className="py-20">
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+			{/* Menu Grid Section */}
+			<Section className="py-10 sm:py-20 px-4 max-w-7xl mx-auto">
+				{/* ⚡ FIX: Adjusted responsive grid spacing to handle mobile cleanly without breaking widths */}
+				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
 					{products.map((item, index) => (
 						<motion.div
 							key={item.id || item._id || item.title || index}
 							initial={{ opacity: 0, y: 30 }}
 							whileInView={{ opacity: 1, y: 0 }}
-							transition={{ delay: index * 0.07 }}>
-							<Card className="group h-full flex flex-col p-4 sm:p-6 hover:shadow-2xl transition-all duration-500 border-2 border-gray-200">
-								<div className="relative h-36 sm:h-40 md:h-48 lg:h-64 overflow-hidden">
+							transition={{ delay: index * 0.05 }}
+							className="w-full">
+							{/* ⚡ FIX: Use flex-col to force structured vertical stacking on mobile */}
+							<Card className="group w-full h-full flex flex-col overflow-hidden bg-white rounded-3xl hover:shadow-2xl transition-all duration-500 border-2 border-gray-100">
+								{/* Image Box */}
+								<div className="relative h-48 sm:h-52 md:h-56 lg:h-64 w-full overflow-hidden bg-gray-100">
 									<img
 										src={item.image}
 										alt={item.title}
 										loading="lazy"
 										decoding="async"
-										fetchPriority="low"
 										className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
 									/>
-									{/* <div className="absolute top-4 right-4 backdrop-blur-sm text-gray-900 px-4 py-1.5 rounded-full text-sm font-bold shadow-md"> */}
-									<div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-900 px-4 py-1.5 rounded-full text-sm font-bold shadow-md">
+									<div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm text-gray-900 px-4 py-1.5 rounded-full text-sm font-bold shadow-md z-10">
 										{formatCurrency(item.price)}
 									</div>
 								</div>
 
-								<div className="p-4 sm:p-6 flex-1 flex flex-col">
-									<h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2 line-clamp-2">
-										{item.title}
-									</h3>
-									<p className="text-gray-600 mb-3 min-h-[48px] text-sm flex-1">
-										{item.description || "Delicious meal from our chef."}
-									</p>
-									<button
-										className="w-full flex items-center justify-center gap-2 p-2 rounded-2xl bg-black text-white hover:bg-gray-900 text-sm"
-										onClick={() => handleAddToCart(item)}>
-										<ShoppingCart className="w-4 h-4" />
-										Add to Cart
-									</button>
+								{/* Content Box */}
+								<div className="p-5 sm:p-6 flex-1 flex flex-col justify-between gap-4">
+									<div className="flex flex-col gap-1.5">
+										<h3 className="text-lg sm:text-xl font-bold text-gray-900 break-words line-clamp-2">
+											{item.title}
+										</h3>
+										<p className="text-gray-600 text-sm break-words line-clamp-3 leading-relaxed">
+											{item.description || "Delicious meal from our chef."}
+										</p>
+									</div>
+
+									{/* Action Button */}
+									<div className="mt-auto pt-2">
+										<button
+											className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-black text-white hover:bg-gray-900 active:scale-95 transition-all font-medium text-sm shadow-md"
+											onClick={() => handleAddToCart(item)}>
+											<ShoppingCart className="w-4 h-4" />
+											Add to Cart
+										</button>
+									</div>
 								</div>
 							</Card>
 						</motion.div>
