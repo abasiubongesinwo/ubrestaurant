@@ -4,7 +4,6 @@ const API_BASE =
 	"http://localhost:5000";
 
 const unwrapPayload = (result, fallbackKeys = []) => {
-	// console.log("Unwrapped API response:", result);
 	if (result == null) {
 		return result;
 	}
@@ -55,8 +54,8 @@ const apiCall = async (endpoint, options = {}) => {
 			...options,
 		};
 
-		// 👇 IF YOUR BACKEND DOES NOT USE THE "/api" PREFIX, CHANGE THIS LINE TO:
-		const response = await fetch(`${API_BASE}${endpoint}`, config);
+		// ⚡ FIXED: Added back the "/api" route prefix rule required by your backend
+		const response = await fetch(`${API_BASE}/api${endpoint}`, config);
 
 		if (!response.ok) {
 			let errorMessage = `API Error: ${response.status}`;
