@@ -1,7 +1,7 @@
 const API_BASE =
 	import.meta.env.VITE_API_URL ||
 	import.meta.env.VITE_API_URL_LOCAL ||
-	"http://localhost:5000";
+	"https://ubrestaurant-backend.onrender.com"; // Live Render fallback for mobile/production testing
 
 const unwrapPayload = (result, fallbackKeys = []) => {
 	if (result == null) {
@@ -54,7 +54,6 @@ const apiCall = async (endpoint, options = {}) => {
 			...options,
 		};
 
-		// ⚡ FIXED: Added back the "/api" route prefix rule required by your backend
 		const response = await fetch(`${API_BASE}/api${endpoint}`, config);
 
 		if (!response.ok) {
