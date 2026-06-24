@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Popup } from "paystack-js";
 import { Link } from "react-router-dom";
 import {
 	ArrowLeft,
@@ -17,20 +16,7 @@ import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 
 const EMAIL_PATTERN = /\S+@\S+\.\S+/;
-const PAYSTACK_PLACEHOLDER_KEY = "pk_test_xxxxxxxxxxxxxxxxxxxxxxxx";
-
-const createOrderId = () => {
-	const reference = globalThis.crypto?.randomUUID?.();
-	return reference ? `order-${reference}` : "order-web-checkout";
-};
-
-const isPaymentVerified = (response) =>
-	Boolean(
-		response?.success ||
-		response?.status === "success" ||
-		response?.data?.status === "success" ||
-		response?.data?.status === true,
-	);
+const PHONE_PATTERN = /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/;
 
 const Cart = () => {
 	const { items, total, clearCart } = useCart();
@@ -44,15 +30,25 @@ const Cart = () => {
 	const [paymentMode, setPaymentMode] = useState("online");
 	const [isProcessing, setIsProcessing] = useState(false);
 
-	// Local raw values – used only when guest checkout
 	const customerName =
-		isAuthenticated ? user?.fullName || "" : customerNameLocal;
+		customerNameLocal.trim() ? customerNameLocal
+		: isAuthenticated ? user?.fullName || ""
+		: "";
+
 	const customerEmail =
-		isAuthenticated ? user?.email || "" : customerEmailLocal;
+		customerEmailLocal.trim() ? customerEmailLocal
+		: isAuthenticated ? user?.email || ""
+		: "";
+
 	const customerPhone =
-		isAuthenticated ? user?.phone || "" : customerPhoneLocal;
+		customerPhoneLocal.trim() ? customerPhoneLocal
+		: isAuthenticated ? user?.phone || user?.phoneNumber || ""
+		: "";
+
 	const customerPhoneSecondary =
-		isAuthenticated ? user?.phoneSecondary || "" : customerPhoneSecondaryLocal;
+		customerPhoneSecondaryLocal.trim() ? customerPhoneSecondaryLocal
+		: isAuthenticated ? user?.phoneSecondary || ""
+		: "";
 
 	const resetCheckoutForm = () => {
 		clearCart();
@@ -90,7 +86,6 @@ const Cart = () => {
 
 		resetCheckoutForm();
 
-		// Handle Paystack payment redirect
 		if (orderCreatedResponse?.paymentUrl) {
 			window.location.href = orderCreatedResponse.paymentUrl;
 		} else {
@@ -99,9 +94,7 @@ const Cart = () => {
 	};
 
 	const handleCheckout = async () => {
-		if (items.length === 0) {
-			return;
-		}
+		if (items.length === 0) return;
 
 		if (!isAuthenticated) {
 			if (!customerName.trim() || !customerEmail.trim()) {
@@ -113,6 +106,16 @@ const Cart = () => {
 				toast.error("Please enter a valid email address");
 				return;
 			}
+		}
+
+		if (!customerPhone.trim()) {
+			toast.error("Primary Phone Number is required to dispatch deliveries.");
+			return;
+		}
+
+		if (customerPhone.trim().length < 7 || !PHONE_PATTERN.test(customerPhone)) {
+			toast.error("Please enter a valid primary contact phone number.");
+			return;
 		}
 
 		setIsProcessing(true);
@@ -173,7 +176,6 @@ const Cart = () => {
 					</div>
 				</div>
 
-				{/* ⚡ FIX: Added grid-cols-1 to force items to stack cleanly down like a column on small devices */}
 				<div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:grid-cols-1 sm:gap-8 w-full">
 					{/* Cart Items List Wrapper */}
 					<div className="lg:col-span-7 space-y-4 sm:space-y-6 w-full">
@@ -186,7 +188,6 @@ const Cart = () => {
 					</div>
 
 					{/* Order Summary Checkout Box */}
-					{/* ⚡ FIX: Optimized padding for mobile devices (p-5 on mobile, p-8 on desktop) */}
 					<div className="lg:col-span-5 bg-white rounded-3xl shadow-xl border border-gray-100 p-5 sm:p-8 lg:sticky lg:top-24 h-fit w-full">
 						<h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">
 							Order Summary
@@ -209,7 +210,7 @@ const Cart = () => {
 
 						{/* Customer Information Form Fields */}
 						<div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
-							{!isAuthenticated && (
+							{!isAuthenticated ?
 								<>
 									<div>
 										<label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
@@ -230,7 +231,6 @@ const Cart = () => {
 										</label>
 										<input
 											type="email"
-											// 👇 FIXED VARIABLE NAME HERE:
 											value={customerEmailLocal}
 											onChange={(event) =>
 												setCustomerEmailLocal(event.target.value)
@@ -239,10 +239,7 @@ const Cart = () => {
 										/>
 									</div>
 								</>
-							)}
-
-							{isAuthenticated && (
-								<div className="bg-green-50 border border-green-200 rounded-2xl p-3 sm:p-4 mb-4">
+							:	<div className="bg-green-50 border border-green-200 rounded-2xl p-3 sm:p-4 mb-4">
 									<div className="flex items-center gap-2 sm:gap-3">
 										<div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
 											<span className="text-green-600 font-semibold text-xs sm:text-sm">
@@ -259,37 +256,43 @@ const Cart = () => {
 										</div>
 									</div>
 								</div>
+							}
+
+							{/* Render input fallback fields if profile data is empty */}
+							{(!isAuthenticated || !(user?.phone || user?.phoneNumber)) && (
+								<div>
+									<label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
+										Primary Phone Number <span className="text-red-500">*</span>
+									</label>
+									<input
+										type="tel"
+										value={customerPhoneLocal}
+										onChange={(event) =>
+											setCustomerPhoneLocal(event.target.value)
+										}
+										placeholder="e.g. 08012345678"
+										className="w-full px-4 sm:px-5 py-3 sm:py-4 border border-gray-200 rounded-2xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all text-sm sm:text-base"
+									/>
+								</div>
 							)}
 
-							<div>
-								<label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
-									Primary Phone Number <span className="text-red-500">*</span>
-								</label>
-								<input
-									type="tel"
-									value={customerPhoneLocal}
-									onChange={(event) =>
-										setCustomerPhoneLocal(event.target.value)
-									}
-									placeholder="+234 or 0801..."
-									className="w-full px-4 sm:px-5 py-3 sm:py-4 border border-gray-200 rounded-2xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all text-sm sm:text-base"
-								/>
-							</div>
-
-							<div>
-								<label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
-									Secondary Phone Number <span className="text-red-500">*</span>
-								</label>
-								<input
-									type="tel"
-									value={customerPhoneSecondaryLocal}
-									onChange={(event) =>
-										setCustomerPhoneSecondaryLocal(event.target.value)
-									}
-									placeholder="Backup number for delivery"
-									className="w-full px-4 sm:px-5 py-3 sm:py-4 border border-gray-200 rounded-2xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all text-sm sm:text-base"
-								/>
-							</div>
+							{(!isAuthenticated || !user?.phoneSecondary) && (
+								<div>
+									<label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
+										Secondary Phone Number{" "}
+										<span className="text-gray-400">(Optional)</span>
+									</label>
+									<input
+										type="tel"
+										value={customerPhoneSecondaryLocal}
+										onChange={(event) =>
+											setCustomerPhoneSecondaryLocal(event.target.value)
+										}
+										placeholder="Backup number for delivery"
+										className="w-full px-4 sm:px-5 py-3 sm:py-4 border border-gray-200 rounded-2xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all text-sm sm:text-base"
+									/>
+								</div>
+							)}
 
 							<div>
 								<label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">

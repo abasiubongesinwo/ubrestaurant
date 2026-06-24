@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom"; // ✅ Added useNavigate
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { api } from "../api";
 
 const PaymentCallback = () => {
 	const [searchParams] = useSearchParams();
+	const navigate = useNavigate(); // ✅ Initialize router navigation redirect engine
 	const { clearCart } = useCart();
-	const [status, setStatus] = useState("verifying"); // "verifying", "success", "error"
+	const [status, setStatus] = useState("verifying");
 
 	const reference = searchParams.get("reference");
 
@@ -16,14 +17,18 @@ const PaymentCallback = () => {
 			if (!reference) return;
 
 			try {
-				// ⚡ Switch from standard manual fetch() to your clean wrapper method!
 				const data = await api.verifyPayment(reference);
 				console.log("Paystack verification success response:", data);
 
-				// If it succeeds without throwing an error, flip state to success
 				if (data.success || data.status === "success") {
 					setStatus("success");
 					clearCart();
+
+					// ✅ FIX: Wait 3 seconds so they see the success message,
+					// then automatically push them out of this raw callback URL!
+					setTimeout(() => {
+						navigate("/services");
+					}, 3500);
 				} else {
 					setStatus("error");
 				}
@@ -34,8 +39,7 @@ const PaymentCallback = () => {
 		};
 
 		verifyTransaction();
-		// ⚡ FIX: Added clearCart here to maintain a constant array size and fix the crash!
-	}, [reference, clearCart]);
+	}, [reference, clearCart, navigate]); // ✅ Added navigate dependency tracking
 
 	// 1. LOADING SCREEN
 	if (status === "verifying") {
@@ -52,7 +56,7 @@ const PaymentCallback = () => {
 		);
 	}
 
-	// 2. SUCCESS STATE (YOUR APPRECIATION MESSAGE!)
+	// 2. SUCCESS STATE
 	if (status === "success") {
 		return (
 			<div className="min-h-[80vh] flex items-center justify-center bg-gray-50 px-4">
@@ -66,10 +70,16 @@ const PaymentCallback = () => {
 					<p className="text-xl text-emerald-600 font-medium mb-4">
 						Thank you for your order!
 					</p>
-					<p className="text-gray-600 mb-8">
+					<p className="text-gray-600 mb-6">
 						Your payment was securely processed. We've received your order items
 						and our kitchen is preparing your delicious meal right now!
 					</p>
+
+					{/* Visual Redirect Indicator */}
+					<p className="text-xs text-gray-400 animate-pulse mb-4">
+						Redirecting you back to the menu shortly...
+					</p>
+
 					<Link
 						to="/services"
 						className="block w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-4 rounded-2xl transition-all shadow-lg shadow-amber-200">

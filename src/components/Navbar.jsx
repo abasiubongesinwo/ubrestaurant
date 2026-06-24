@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, User, LogOut } from "lucide-react";
+import { Menu, X, ShoppingCart, User, LogOut, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -13,7 +13,9 @@ const Navbar = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const { items } = useCart();
-	const { user, logout, isAuthenticated, isAdmin } = useAuth();
+	const { user, logout, isAuthenticated } = useAuth();
+
+	const isManagement = user?.role === "admin" || user?.role === "superadmin";
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
@@ -35,7 +37,8 @@ const Navbar = () => {
 		{ name: "About", path: "/about" },
 		{ name: "Gallery", path: "/gallery" },
 		{ name: "Contact", path: "/contact" },
-		...(isAdmin ? [{ name: "Admin", path: "/admin/dashboard" }] : []),
+		// Management link shows for both admin and superadmin in main nav if there's room
+		...(isManagement ? [{ name: "Dashboard", path: "/admin/dashboard" }] : []),
 	];
 
 	const authLinks = [
@@ -104,8 +107,8 @@ const Navbar = () => {
 									onClick={() => setShowProfileMenu(!showProfileMenu)}
 									className="flex items-center gap-2 p-2 rounded-xl hover:bg-amber-50 transition-all">
 									<User className="w-6 h-6 text-gray-700" />
-									<span className="hidden md:block text-sm font-medium text-gray-700">
-										Profile
+									<span className="hidden md:block text-sm font-medium text-gray-700 capitalize">
+										{user?.role || "Profile"}
 									</span>
 								</button>
 
@@ -113,24 +116,43 @@ const Navbar = () => {
 									<motion.div
 										initial={{ opacity: 0, y: -10 }}
 										animate={{ opacity: 1, y: 0 }}
-										className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+										className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+										{/* User Metadata Header */}
 										<div className="px-4 py-2 border-b border-gray-100">
-											<p className="text-sm text-gray-700">{user?.email}</p>
+											<p className="text-xs text-gray-400 font-semibold tracking-wider uppercase">
+												Account
+											</p>
+											<p className="text-sm font-medium text-gray-800 truncate">
+												{user?.email}
+											</p>
 										</div>
-										{isAdmin && (
-											<Link
-												to="/admin/dashboard"
-												onClick={() => setShowProfileMenu(false)}
-												className="w-full block text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-												Admin Dashboard
-											</Link>
-										)}
-										<button
-											onClick={handleLogout}
-											className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-											<LogOut className="w-4 h-4" />
-											Logout
-										</button>
+
+										{/* Dynamic UI Content based on Role Clearance */}
+										{isManagement ?
+											<div className="p-1 border-b border-gray-100 bg-amber-50/50">
+												<Link
+													to="/admin/dashboard"
+													onClick={() => setShowProfileMenu(false)}
+													className="flex items-center gap-2 px-3 py-2 text-sm text-amber-900 font-semibold hover:bg-amber-100/70 rounded-lg transition-colors">
+													<ShieldCheck className="w-4 h-4 text-amber-600" />
+													<span>
+														{user?.role === "superadmin" ?
+															"Superadmin Portal"
+														:	"Admin Dashboard"}
+													</span>
+												</Link>
+											</div>
+										:	null}
+
+										{/* Universal Logout Trigger button */}
+										<div className="p-1">
+											<button
+												onClick={handleLogout}
+												className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 rounded-lg transition-colors font-medium">
+												<LogOut className="w-4 h-4" />
+												<span>Logout</span>
+											</button>
+										</div>
 									</motion.div>
 								)}
 							</div>
@@ -163,6 +185,7 @@ const Navbar = () => {
 				</div>
 			</div>
 
+			{/* Mobile Sidebar Dropdown Panel */}
 			{isOpen && (
 				<motion.div
 					initial={{ opacity: 0, height: 0 }}
@@ -188,26 +211,36 @@ const Navbar = () => {
 						{isAuthenticated ?
 							<div className="space-y-2 pt-2">
 								<div className="px-4 py-2 bg-gray-50 rounded-xl">
-									<p className="text-sm text-gray-700 font-medium">
+									<p className="text-xs text-gray-400 font-semibold uppercase">
+										{user?.role}
+									</p>
+									<p className="text-sm text-gray-700 font-medium truncate">
 										{user?.email}
 									</p>
 								</div>
-								{isAdmin && (
+
+								{isManagement && (
 									<Link
 										to="/admin/dashboard"
 										onClick={() => setIsOpen(false)}
-										className="w-full block text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-										Admin Dashboard
+										className="w-full flex items-center gap-2 px-4 py-3 rounded-xl text-base font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 transition-all">
+										<ShieldCheck className="w-5 h-5 text-amber-600" />
+										<span>
+											{user?.role === "superadmin" ?
+												"Superadmin Portal"
+											:	"Admin Dashboard"}
+										</span>
 									</Link>
 								)}
+
 								<button
 									onClick={() => {
 										handleLogout();
 										setIsOpen(false);
 									}}
-									className="w-full flex items-center gap-2 px-4 py-3 rounded-xl text-base font-medium text-gray-700 hover:bg-gray-50">
+									className="w-full flex items-center gap-2 px-4 py-3 rounded-xl text-base font-medium text-red-600 hover:bg-red-50 transition-all">
 									<LogOut className="w-5 h-5" />
-									Logout
+									<span>Logout</span>
 								</button>
 							</div>
 						:	<div className="space-y-2 pt-2">

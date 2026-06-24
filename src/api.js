@@ -1,25 +1,15 @@
 const API_BASE =
 	import.meta.env.VITE_API_URL ||
 	import.meta.env.VITE_API_URL_LOCAL ||
-	"https://ubrestaurant-backend.onrender.com"; // Live Render fallback for mobile/production testing
+	"https://ubrestaurant-backend.onrender.com";
 
 const unwrapPayload = (result, fallbackKeys = []) => {
-	if (result == null) {
-		return result;
-	}
-
-	if (Array.isArray(result)) {
-		return result;
-	}
-
-	if (result.data != null) {
-		return result.data;
-	}
+	if (result == null) return result;
+	if (Array.isArray(result)) return result;
+	if (result.data != null) return result.data;
 
 	for (const key of fallbackKeys) {
-		if (result[key] != null) {
-			return result[key];
-		}
+		if (result[key] != null) return result[key];
 	}
 
 	return result;
@@ -48,11 +38,14 @@ const apiCall = async (endpoint, options = {}) => {
 		const config = {
 			headers: {
 				"Content-Type": "application/json",
-				...(token && { Authorization: `Bearer ${token}` }),
+				...(token &&
+					!options.skipAuthHeader && { Authorization: `Bearer ${token}` }),
 				...options.headers,
 			},
 			...options,
 		};
+
+		delete config.skipAuthHeader;
 
 		const response = await fetch(`${API_BASE}/api${endpoint}`, config);
 
@@ -67,10 +60,7 @@ const apiCall = async (endpoint, options = {}) => {
 			throw new Error(errorMessage);
 		}
 
-		if (response.status === 204) {
-			return {};
-		}
-
+		if (response.status === 204) return {};
 		return await response.json();
 	} catch (error) {
 		console.error(
@@ -89,9 +79,16 @@ export const api = {
 		return unwrapArray(result, ["products", "items"]);
 	},
 
-	// Orders
-	getOrders: async () => unwrapArray(await apiCall("/orders"), ["orders"]), // Admin - all orders
-	getMyOrders: async () => unwrapArray(await apiCall("/orders/my"), ["orders"]), // User - their own orders
+	toggleProductAvailability: async (id) =>
+		unwrapPayload(
+			await apiCall(`/products/${id}/toggle-stock`, {
+				method: "PATCH",
+			}),
+			["product"],
+		),
+
+	getOrders: async () => unwrapArray(await apiCall("/orders"), ["orders"]),
+	getMyOrders: async () => unwrapArray(await apiCall("/orders/my"), ["orders"]),
 	createOrder: async (orderData) =>
 		unwrapPayload(
 			await apiCall("/orders", {
@@ -111,25 +108,44 @@ export const api = {
 
 	// Users / Customers
 	getCustomers: async () =>
-		unwrapArray(await apiCall("/users/customers"), ["customers", "users"]), // Admin only
-	getMe: async () => unwrapPayload(await apiCall("/users/me"), ["user"]), // Current user profile
+		unwrapArray(await apiCall("/users/customers"), ["customers", "users"]),
+	getMe: async () => unwrapPayload(await apiCall("/users/me"), ["user"]),
 
-	// Auth
-	login: async (credentials) =>
-		normalizeAuthResponse(
+	updateUserRole: async (id, role) =>
+		unwrapPayload(
+			await apiCall(`/users/${id}/role`, {
+				method: "PATCH",
+				body: JSON.stringify({ role }),
+			}),
+			["user", "customer"],
+		),
+
+	deleteUser: async (id) =>
+		await apiCall(`/users/${id}`, {
+			method: "DELETE",
+		}),
+
+	login: async (credentials) => {
+		localStorage.removeItem("token");
+		return normalizeAuthResponse(
 			await apiCall("/auth/login", {
 				method: "POST",
 				body: JSON.stringify(credentials),
+				skipAuthHeader: true,
 			}),
-		),
+		);
+	},
 
-	register: async (userData) =>
-		normalizeAuthResponse(
+	register: async (userData) => {
+		localStorage.removeItem("token");
+		return normalizeAuthResponse(
 			await apiCall("/auth/signup", {
 				method: "POST",
 				body: JSON.stringify(userData),
+				skipAuthHeader: true,
 			}),
-		),
+		);
+	},
 
 	// Payment
 	initializePayment: (paymentData) =>

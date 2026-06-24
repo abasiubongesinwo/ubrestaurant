@@ -16,6 +16,7 @@ export default function SignUp() {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		if (loading) return;
 
 		if (password !== confirmPassword) {
 			toast.error("Passwords do not match");
@@ -58,9 +59,10 @@ export default function SignUp() {
 							id="name"
 							type="text"
 							required
+							disabled={loading}
 							value={name}
 							onChange={(e) => setName(e.target.value)}
-							className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none"
+							className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none disabled:opacity-60 disabled:bg-gray-50"
 						/>
 					</div>
 
@@ -74,9 +76,10 @@ export default function SignUp() {
 							id="email"
 							type="email"
 							required
+							disabled={loading}
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
-							className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none"
+							className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none disabled:opacity-60 disabled:bg-gray-50"
 						/>
 					</div>
 
@@ -90,9 +93,10 @@ export default function SignUp() {
 							id="password"
 							type="password"
 							required
+							disabled={loading}
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
-							className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none"
+							className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none disabled:opacity-60 disabled:bg-gray-50"
 						/>
 					</div>
 
@@ -106,15 +110,16 @@ export default function SignUp() {
 							id="confirmPassword"
 							type="password"
 							required
+							disabled={loading}
 							value={confirmPassword}
 							onChange={(e) => setConfirmPassword(e.target.value)}
-							className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none"
+							className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none disabled:opacity-60 disabled:bg-gray-50"
 						/>
 					</div>
 
 					<Button
 						type="submit"
-						className="w-full cursor-pointer"
+						className="w-full cursor-pointer flex items-center justify-center"
 						disabled={loading}>
 						{loading ? "Creating Account..." : "Create account"}
 					</Button>

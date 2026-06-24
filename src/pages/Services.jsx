@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom"; // ✅ Added to read post-payment URL context flags
 import { motion } from "framer-motion";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Ban } from "lucide-react"; // ✅ Added Ban icon for empty stock parameters
 import { toast } from "sonner";
 import { api } from "../api";
 import Card from "../components/Card";
@@ -12,8 +13,22 @@ const Services = () => {
 	const { addItem } = useCart();
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [searchParams, setSearchParams] = useSearchParams(); // ✅ Catch incoming redirects
 
 	useEffect(() => {
+		// 🌟 UX Touch: If they were just redirected here from a successful checkout, celebrate it!
+		if (
+			searchParams.get("from") === "checkout" ||
+			window.location.search.includes("reference")
+		) {
+			toast.success("Order Placed Successfully!", {
+				description: "Our kitchen logs have received your order details.",
+				duration: 5000,
+			});
+			// Clean up the URL parameters so refreshing doesn't re-trigger the toast notifications
+			setSearchParams({}, { replace: true });
+		}
+
 		const fetchProducts = async () => {
 			try {
 				setLoading(true);
@@ -33,7 +48,7 @@ const Services = () => {
 		};
 
 		fetchProducts();
-	}, []);
+	}, [searchParams, setSearchParams]);
 
 	const handleAddToCart = (item) => {
 		addItem(item);
@@ -71,55 +86,80 @@ const Services = () => {
 
 			{/* Menu Grid Section */}
 			<Section className="py-10 sm:py-20 px-4 max-w-7xl mx-auto">
-				{/* ⚡ FIX: Adjusted responsive grid spacing to handle mobile cleanly without breaking widths */}
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-					{products.map((item, index) => (
-						<motion.div
-							key={item.id || item._id || item.title || index}
-							initial={{ opacity: 0, y: 30 }}
-							whileInView={{ opacity: 1, y: 0 }}
-							transition={{ delay: index * 0.05 }}
-							className="w-full">
-							{/* ⚡ FIX: Use flex-col to force structured vertical stacking on mobile */}
-							<Card className="group w-full h-full flex flex-col overflow-hidden bg-white rounded-3xl hover:shadow-2xl transition-all duration-500 border-2 border-gray-100">
-								{/* Image Box */}
-								<div className="relative h-48 sm:h-52 md:h-56 lg:h-64 w-full overflow-hidden bg-gray-100">
-									<img
-										src={item.image}
-										alt={item.title}
-										loading="lazy"
-										decoding="async"
-										className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-									/>
-									<div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm text-gray-900 px-4 py-1.5 rounded-full text-sm font-bold shadow-md z-10">
-										{formatCurrency(item.price)}
-									</div>
-								</div>
+					{products.map((item, index) => {
+						const isAvailable =
+							item.isAvailable !== false && item.countInStock !== 0;
 
-								{/* Content Box */}
-								<div className="p-5 sm:p-6 flex-1 flex flex-col justify-between gap-4">
-									<div className="flex flex-col gap-1.5">
-										<h3 className="text-lg sm:text-xl font-bold text-gray-900 break-words line-clamp-2">
-											{item.title}
-										</h3>
-										<p className="text-gray-600 text-sm break-words line-clamp-3 leading-relaxed">
-											{item.description || "Delicious meal from our chef."}
-										</p>
+						return (
+							<motion.div
+								key={item.id || item._id || item.title || index}
+								initial={{ opacity: 0, y: 30 }}
+								whileInView={{ opacity: 1, y: 0 }}
+								transition={{ delay: index * 0.05 }}
+								className="w-full">
+								<Card className="group w-full h-full flex flex-col overflow-hidden bg-white rounded-3xl hover:shadow-2xl transition-all duration-500 border-2 border-gray-100 relative">
+									{/* Out of Stock Dark Overlay Banner Overlay */}
+									{!isAvailable && (
+										<div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold z-20 shadow-sm uppercase tracking-wider">
+											Sold Out
+										</div>
+									)}
+
+									{/* Image Box */}
+									<div
+										className={`relative h-48 sm:h-52 md:h-56 lg:h-64 w-full overflow-hidden bg-gray-100 ${!isAvailable && "opacity-60"}`}>
+										<img
+											src={item.image}
+											alt={item.title}
+											loading="lazy"
+											decoding="async"
+											className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+										/>
+										<div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm text-gray-900 px-4 py-1.5 rounded-full text-sm font-bold shadow-md z-10">
+											{formatCurrency(item.price)}
+										</div>
 									</div>
 
-									{/* Action Button */}
-									<div className="mt-auto pt-2">
-										<button
-											className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-black text-white hover:bg-gray-900 active:scale-95 transition-all font-medium text-sm shadow-md"
-											onClick={() => handleAddToCart(item)}>
-											<ShoppingCart className="w-4 h-4" />
-											Add to Cart
-										</button>
+									{/* Content Box */}
+									<div className="p-5 sm:p-6 flex-1 flex flex-col justify-between gap-4">
+										<div className="flex flex-col gap-1.5">
+											<h3
+												className={`text-lg sm:text-xl font-bold text-gray-900 break-words line-clamp-2 ${!isAvailable && "text-gray-400 line-through"}`}>
+												{item.title}
+											</h3>
+											<p className="text-gray-600 text-sm break-words line-clamp-3 leading-relaxed">
+												{item.description || "Delicious meal from our chef."}
+											</p>
+										</div>
+
+										{/* Action Button */}
+										<div className="mt-auto pt-2">
+											<button
+												disabled={!isAvailable}
+												className={`w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl transition-all font-medium text-sm shadow-md active:scale-95 ${
+													isAvailable ?
+														"bg-black text-white hover:bg-gray-900 cursor-pointer"
+													:	"bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed shadow-none active:scale-100"
+												}`}
+												onClick={() => handleAddToCart(item)}>
+												{isAvailable ?
+													<>
+														<ShoppingCart className="w-4 h-4" />
+														<span>Add to Cart</span>
+													</>
+												:	<>
+														<Ban className="w-4 h-4 text-gray-400" />
+														<span>Out of Stock</span>
+													</>
+												}
+											</button>
+										</div>
 									</div>
-								</div>
-							</Card>
-						</motion.div>
-					))}
+								</Card>
+							</motion.div>
+						);
+					})}
 				</div>
 			</Section>
 		</div>

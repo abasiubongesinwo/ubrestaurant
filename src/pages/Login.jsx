@@ -36,6 +36,7 @@ export default function Login() {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		if (loading) return;
 		setLoading(true);
 
 		try {
@@ -46,13 +47,15 @@ export default function Login() {
 			const from = location.state?.from?.pathname;
 
 			const destination =
-				user?.role === "admin" || user?.role === "superadmin" ?
+				user?.role === "admin" || user?.role === "superadmin" || user?.isAdmin ?
 					"/admin/dashboard"
 				:	from || "/";
 
 			navigate(destination, { replace: true });
 		} catch (error) {
-			toast.error(error.message || "Login failed");
+			toast.error(
+				error.message || "Login failed. Please check your credentials.",
+			);
 		} finally {
 			setLoading(false);
 		}
@@ -79,9 +82,10 @@ export default function Login() {
 							id="email"
 							type="email"
 							required
+							disabled={loading}
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
-							className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none"
+							className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none disabled:opacity-60 disabled:bg-gray-50"
 						/>
 					</div>
 
@@ -95,15 +99,16 @@ export default function Login() {
 							id="password"
 							type="password"
 							required
+							disabled={loading}
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
-							className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none"
+							className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none disabled:opacity-60 disabled:bg-gray-50"
 						/>
 					</div>
 
 					<Button
 						type="submit"
-						className="w-full cursor-pointer"
+						className="w-full cursor-pointer flex items-center justify-center"
 						disabled={loading}>
 						{loading ? "Signing In..." : "Sign In"}
 					</Button>

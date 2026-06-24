@@ -69,7 +69,6 @@
 	}
 }
 
-/* Smooth scrolling for in-page navigation */
 html {
 	scroll-behavior: smooth;
 }

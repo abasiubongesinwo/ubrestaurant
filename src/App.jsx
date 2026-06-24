@@ -50,11 +50,11 @@ function AppContent() {
 						<Route path="/login" element={<Login />} />
 						<Route path="/signup" element={<SignUp />} />
 
-						{/* Admin Routes wrapped with Protected Route */}
 						<Route
 							path="/admin"
 							element={
-								<ProtectedRoute requireAdmin>
+								<ProtectedRoute adminOnly={true}>
+									{" "}
 									<AdminLayout />
 								</ProtectedRoute>
 							}>
@@ -65,7 +65,6 @@ function AppContent() {
 							<Route index element={<AdminDashboard />} />
 						</Route>
 
-						{/* 404 Fallback Route */}
 						<Route
 							path="*"
 							element={

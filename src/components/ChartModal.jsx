@@ -67,8 +67,14 @@ const ChartModal = ({ isOpen, onClose }) => {
 	const renderChart = () => {
 		if (activeChart === "orders") {
 			return (
-				<LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-					<CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f3f4f6" />
+				<LineChart
+					data={chartData}
+					margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+					<CartesianGrid
+						vertical={false}
+						strokeDasharray="3 3"
+						stroke="#f3f4f6"
+					/>
 					<XAxis
 						dataKey="month"
 						axisLine={false}
@@ -97,8 +103,14 @@ const ChartModal = ({ isOpen, onClose }) => {
 
 		if (activeChart === "revenue") {
 			return (
-				<BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-					<CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f3f4f6" />
+				<BarChart
+					data={chartData}
+					margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+					<CartesianGrid
+						vertical={false}
+						strokeDasharray="3 3"
+						stroke="#f3f4f6"
+					/>
 					<XAxis
 						dataKey="month"
 						axisLine={false}
@@ -120,8 +132,14 @@ const ChartModal = ({ isOpen, onClose }) => {
 		}
 
 		return (
-			<LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-				<CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f3f4f6" />
+			<LineChart
+				data={chartData}
+				margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+				<CartesianGrid
+					vertical={false}
+					strokeDasharray="3 3"
+					stroke="#f3f4f6"
+				/>
 				<XAxis
 					dataKey="month"
 					axisLine={false}

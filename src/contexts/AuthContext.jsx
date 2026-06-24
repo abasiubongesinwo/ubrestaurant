@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useState } from "react";
-import api from "../api";
+import { api } from "../api";
 
 const TOKEN_STORAGE_KEY = "token";
 const USER_STORAGE_KEY = "user";
