@@ -47,19 +47,25 @@ const OrderPipeline = ({ orders, updatingId, onUpdateStatus }) => {
 								</span>
 							</div>
 
-							<div className="text-sm text-gray-600 space-y-1">
+							<div className="text-sm text-gray-600 space-y-2">
 								<p className="font-semibold text-gray-900">
 									{order.customerName ||
-										order.user?.fullName ||
-										order.user?.fullname ||
+										order.userId?.fullName ||
 										"Guest Customer"}
 								</p>
+
 								<p className="text-xs">
-									{order.customerEmail || order.user?.email} •{" "}
-									{order.deliveryAddress || "Dine-In / Takeout"}
+									📧 {order.customerEmail || order.userId?.email}
+								</p>
+
+								<p className="text-xs">
+									📞 {order.customerPhone || "No phone"}
+								</p>
+
+								<p className="text-xs">
+									📍 {order.deliveryAddress || "No delivery address"}
 								</p>
 							</div>
-
 							{/* Order Items List Layout */}
 							<div className="pt-2 border-t border-gray-50 flex flex-wrap gap-3">
 								{(order.items || []).map((item, itemIndex) => (

@@ -64,7 +64,7 @@ const AdminCustomers = () => {
 				</div>
 
 				{/* Grid Deck View Wrapper */}
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
 					{filteredCustomers.map((customer) => {
 						// Gather individual customer profile datasets natively
 						const customerOrders = getCustomerOrders(customer, orders);
@@ -76,7 +76,6 @@ const AdminCustomers = () => {
 
 						return (
 							<motion.div
-								// ✅ FIX: Fallbacks ensure unique list keys matching database records
 								key={customer._id || customer.id || customer.email}
 								whileHover={{ y: -4, scale: 1.02 }}
 								className="group bg-gradient-to-b from-white to-gray-50 rounded-3xl p-8 border border-gray-100 hover:shadow-2xl hover:border-amber-200 transition-all overflow-hidden flex flex-col justify-between h-full">

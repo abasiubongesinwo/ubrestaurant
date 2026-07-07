@@ -171,11 +171,10 @@ const OrderTable = ({ orders: sourceOrders }) => {
 														order.user?.phoneNumber ||
 														"No phone number"}
 												</div>
-
 												{/* 📱 Optional Secondary Phone Row */}
 												{order.customerPhoneSecondary && (
 													<div className="text-[11px] text-gray-500 flex items-center gap-1.5 pl-5 bg-gray-50 py-0.5 px-1.5 rounded w-max border border-gray-100">
-														<span className="font-semibold text-gray-400">
+														<span className="font-semibold text-gray-800">
 															Alt:
 														</span>
 														{order.customerPhoneSecondary}
@@ -183,6 +182,7 @@ const OrderTable = ({ orders: sourceOrders }) => {
 												)}
 											</div>
 										</td>
+
 										<td className="px-6 py-6">
 											<div className="flex flex-col gap-2.5">
 												{itemsToRender.map((item, itemIndex) => (

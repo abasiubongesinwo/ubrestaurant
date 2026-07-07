@@ -53,7 +53,7 @@ const Gallery = () => {
 			title: "Grilled Fish Dinner",
 		},
 		{
-			src: "/Tendrons de Poulet _Crack_  Ingrédients _ 500 g de….jpg",
+			src: "/Tendrons de Poulet _Crack_   Ingrédients _ 500 g de….jpg",
 			category: "modern",
 			alt: "Chicken tenders",
 			title: "Crispy Chicken Tenders",
@@ -92,26 +92,37 @@ const Gallery = () => {
 
 	return (
 		<div className="min-h-screen bg-gray-50">
-			<Section className="pt-32 pb-20">
-				<motion.div
-					className="text-center mb-16"
-					initial={{ opacity: 0, y: 30 }}
-					whileInView={{ opacity: 1, y: 0 }}>
-					<h1 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-amber-600 bg-clip-text text-transparent mb-6 tracking-tight">
-						Our Food Gallery
-					</h1>
-					<p className="text-xl text-gray-600 max-w-3xl mx-auto">
-						See what’s cooking in our Restaurant and pick your next meal.
-					</p>
-				</motion.div>
+			{/* Hero Banner Section */}
+			<Section className="bg-gradient-to-r from-amber-950 to-amber-900 text-white px-4 py-16 sm:py-24">
+				<div className="max-w-4xl mx-auto text-center">
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.6 }}>
+						<h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-4 sm:mb-6 leading-tight">
+							Our Food Gallery
+						</h1>
+						<p className="text-base sm:text-xl text-amber-100/80 max-w-2xl mx-auto font-medium">
+							See what’s cooking in our Restaurant and pick your next meal.
+						</p>
+					</motion.div>
+				</div>
+			</Section>
 
-				<div className="flex flex-col lg:flex-row gap-6 items-center justify-between mb-12">
-					<div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+			{/* Filter & Grid Section */}
+			<Section className="py-12 sm:py-16 px-4 max-w-7xl mx-auto w-full">
+				{/* Control Panel: Categories & Search Bar */}
+				<div className="flex flex-col md:flex-row gap-6 items-center justify-between mb-12 w-full">
+					<div className="flex flex-wrap gap-2.5 justify-center md:justify-start w-full md:w-auto">
 						{categories.map((cat) => (
 							<button
 								key={cat.id}
 								onClick={() => setSelectedCategory(cat.id)}
-								className={`px-6 py-3 rounded-2xl font-medium transition-all duration-300 text-sm sm:text-base ${selectedCategory === cat.id ? "bg-amber-600 text-white shadow-lg scale-105" : "bg-white text-gray-700 hover:bg-amber-50 border border-gray-200 hover:border-amber-300"}`}>
+								className={`px-5 py-2.5 rounded-2xl font-bold transition-all duration-200 text-sm border ${
+									selectedCategory === cat.id ?
+										"bg-amber-600 border-amber-600 text-white shadow-md shadow-amber-600/10 scale-[1.02]"
+									:	"bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+								}`}>
 								{cat.label}
 							</button>
 						))}
@@ -126,7 +137,7 @@ const Gallery = () => {
 							placeholder="Search meals, flavors, or cuisine..."
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
-							className="w-full pl-12 pr-12 py-4 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:border-amber-500 text-lg placeholder-gray-400"
+							className="w-full pl-12 pr-12 py-3.5 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:border-amber-600 text-base font-medium shadow-sm placeholder-gray-400 transition-colors"
 						/>
 						{searchTerm && (
 							<button
@@ -138,61 +149,69 @@ const Gallery = () => {
 					</div>
 				</div>
 
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+				{/* Display Grid */}
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
 					{filteredImages.map((image, index) => (
 						<motion.div
 							key={image.src}
-							className="group relative overflow-hidden rounded-3xl cursor-pointer shadow-md hover:shadow-2xl transition-all duration-500"
-							initial={{ opacity: 0, y: 40 }}
+							initial={{ opacity: 0, y: 15 }}
 							whileInView={{ opacity: 1, y: 0 }}
-							transition={{ delay: Math.min(index * 0.04, 0.3) }}
-							whileHover={{ y: -8 }}>
-							<div className="aspect-[4/3] overflow-hidden">
-								<img
-									src={image.src}
-									alt={image.alt}
-									loading="lazy"
-									decoding="async"
-									fetchPriority="low"
-									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-								/>
+							viewport={{ once: true, margin: "-20px" }}
+							transition={{
+								duration: 0.4,
+								delay: Math.min(index * 0.04, 0.25),
+							}}
+							className="group relative overflow-hidden rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full w-full aspect-[4/3] cursor-pointer">
+							{/* Main Image Layer */}
+							<img
+								src={image.src}
+								alt={image.alt}
+								loading="lazy"
+								decoding="async"
+								className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+							/>
+
+							{/* Upper Static Badge */}
+							<div className="absolute top-4 right-4 px-3 py-1 bg-white/90 backdrop-blur-md text-gray-900 text-xs font-bold rounded-xl shadow-sm uppercase tracking-wider border border-gray-100 pointer-events-none group-hover:opacity-0 transition-opacity duration-200">
+								{image.category}
 							</div>
-							<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-6">
-								<div>
-									<h3 className="text-white font-semibold text-lg mb-1">
+
+							{/* Hover Overlay details container */}
+							<div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-5">
+								<div className="space-y-2 w-full">
+									<h3 className="text-white font-bold text-lg leading-tight line-clamp-1">
 										{image.title}
 									</h3>
-									<span className="inline-block px-4 py-1 bg-white/20 backdrop-blur-md text-white text-xs font-medium rounded-full capitalize">
+									<span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-md text-white text-xs font-semibold rounded-xl capitalize">
 										{image.category}
 									</span>
 								</div>
-							</div>
-							<div className="absolute top-4 right-4 px-4 py-1 bg-white/90 backdrop-blur-sm text-gray-800 text-xs font-semibold rounded-full shadow">
-								{image.category}
 							</div>
 						</motion.div>
 					))}
 				</div>
 
+				{/* Empty State Result Block */}
 				{filteredImages.length === 0 && (
 					<motion.div
-						className="text-center py-24"
+						className="text-center py-20 max-w-md mx-auto"
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}>
-						<Card className="max-w-md mx-auto p-12">
-							<Search className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-							<h3 className="text-3xl font-bold text-gray-900 mb-3">
+						<Card className="p-10 border border-gray-100 shadow-sm rounded-3xl bg-white">
+							<Search className="w-16 h-16 text-gray-300 mx-auto mb-5" />
+							<h3 className="text-2xl font-bold text-gray-900 mb-2">
 								No results found
 							</h3>
-							<p className="text-gray-600 mb-8">
-								No matching meals found. Try another keyword or clear filters.
+							<p className="text-gray-500 text-sm mb-6 leading-relaxed">
+								No matching meals found. Try checking your spelling or selecting
+								another category.
 							</p>
 							<button
 								onClick={() => {
 									setSelectedCategory("all");
 									setSearchTerm("");
 								}}
-								className="bg-amber-600 hover:bg-amber-700 text-white px-10 py-3.5 rounded-2xl font-medium transition-colors">
+								className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3.5 rounded-2xl text-sm font-bold shadow-md shadow-amber-600/10 hover:shadow-lg transition-all">
 								Clear Filters & Show All
 							</button>
 						</Card>

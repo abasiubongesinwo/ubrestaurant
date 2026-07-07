@@ -68,16 +68,16 @@ const Services = () => {
 	return (
 		<div className="min-h-screen bg-gray-50">
 			{/* Hero Section */}
-			<Section className="bg-amber-950 text-white px-4 py-12 sm:py-20">
+			<Section className="bg-gradient-to-r from-amber-950 to-amber-900 text-white px-4 py-16 sm:py-24">
 				<motion.div
 					className="text-center max-w-4xl mx-auto"
-					initial={{ opacity: 0, y: 30 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.8 }}>
-					<h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 sm:mb-6 leading-tight">
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6 }}>
+					<h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-4 sm:mb-6 leading-tight">
 						Order Delicious Meals Online
 					</h1>
-					<p className="text-base sm:text-xl text-gray-300 max-w-2xl mx-auto">
+					<p className="text-base sm:text-xl text-amber-100/80 max-w-2xl mx-auto font-medium">
 						Browse our menu, place your order, and choose online payment or pay
 						when your food arrives.
 					</p>
@@ -85,8 +85,8 @@ const Services = () => {
 			</Section>
 
 			{/* Menu Grid Section */}
-			<Section className="py-10 sm:py-20 px-4 max-w-7xl mx-auto">
-				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+			<Section className="py-12 sm:py-20 px-4 max-w-7xl mx-auto w-full">
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
 					{products.map((item, index) => {
 						const isAvailable =
 							item.isAvailable !== false && item.countInStock !== 0;
@@ -94,67 +94,75 @@ const Services = () => {
 						return (
 							<motion.div
 								key={item.id || item._id || item.title || index}
-								initial={{ opacity: 0, y: 30 }}
+								initial={{ opacity: 0, y: 20 }}
 								whileInView={{ opacity: 1, y: 0 }}
-								transition={{ delay: index * 0.05 }}
-								className="w-full">
-								<Card className="group w-full h-full flex flex-col overflow-hidden bg-white rounded-3xl hover:shadow-2xl transition-all duration-500 border-2 border-gray-100 relative">
-									{/* Out of Stock Dark Overlay Banner Overlay */}
-									{!isAvailable && (
-										<div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold z-20 shadow-sm uppercase tracking-wider">
-											Sold Out
-										</div>
-									)}
-
+								viewport={{ once: true, margin: "-40px" }}
+								transition={{
+									duration: 0.4,
+									delay: Math.min(index * 0.05, 0.3),
+								}}
+								className="w-full h-full flex">
+								<Card className="group w-full flex flex-col overflow-hidden bg-white rounded-3xl hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 relative">
 									{/* Image Box */}
-									<div
-										className={`relative h-48 sm:h-52 md:h-56 lg:h-64 w-full overflow-hidden bg-gray-100 ${!isAvailable && "opacity-60"}`}>
+									<div className="relative h-52 sm:h-60 w-full overflow-hidden bg-gray-50">
 										<img
 											src={item.image}
 											alt={item.title}
 											loading="lazy"
 											decoding="async"
-											className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+											className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${!isAvailable && "opacity-40 filter grayscale"}`}
 										/>
-										<div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm text-gray-900 px-4 py-1.5 rounded-full text-sm font-bold shadow-md z-10">
-											{formatCurrency(item.price)}
+
+										{/* Status & Price Badges */}
+										<div className="absolute inset-0 p-4 flex flex-col justify-between pointer-events-none">
+											<div className="flex justify-between items-start w-full">
+												{
+													!isAvailable ?
+														<span className="bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-md uppercase tracking-wider">
+															Sold Out
+														</span>
+													:	<div /> /* Empty spacer block */
+												}
+												<span className="bg-white/90 backdrop-blur-md text-gray-900 px-3.5 py-1.5 rounded-2xl text-sm font-bold shadow-md tracking-wide">
+													{formatCurrency(item.price)}
+												</span>
+											</div>
 										</div>
 									</div>
 
 									{/* Content Box */}
-									<div className="p-5 sm:p-6 flex-1 flex flex-col justify-between gap-4">
-										<div className="flex flex-col gap-1.5">
+									<div className="p-5 sm:p-6 flex-1 flex flex-col justify-between gap-5">
+										<div className="space-y-2">
 											<h3
-												className={`text-lg sm:text-xl font-bold text-gray-900 break-words line-clamp-2 ${!isAvailable && "text-gray-400 line-through"}`}>
+												className={`text-lg sm:text-xl font-bold text-gray-900 line-clamp-1 group-hover:text-amber-600 transition-colors duration-200 ${!isAvailable && "text-gray-400 line-through"}`}>
 												{item.title}
 											</h3>
-											<p className="text-gray-600 text-sm break-words line-clamp-3 leading-relaxed">
-												{item.description || "Delicious meal from our chef."}
+											<p className="text-gray-500 text-sm line-clamp-2 leading-relaxed">
+												{item.description ||
+													"Delicious premium meal crafted freshly by our chefs."}
 											</p>
 										</div>
 
-										{/* Action Button */}
-										<div className="mt-auto pt-2">
-											<button
-												disabled={!isAvailable}
-												className={`w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl transition-all font-medium text-sm shadow-md active:scale-95 ${
-													isAvailable ?
-														"bg-black text-white hover:bg-gray-900 cursor-pointer"
-													:	"bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed shadow-none active:scale-100"
-												}`}
-												onClick={() => handleAddToCart(item)}>
-												{isAvailable ?
-													<>
-														<ShoppingCart className="w-4 h-4" />
-														<span>Add to Cart</span>
-													</>
-												:	<>
-														<Ban className="w-4 h-4 text-gray-400" />
-														<span>Out of Stock</span>
-													</>
-												}
-											</button>
-										</div>
+										{/* Premium Unified Action Button */}
+										<button
+											disabled={!isAvailable}
+											onClick={() => handleAddToCart(item)}
+											className={`w-full flex items-center justify-center gap-2.5 py-3.5 px-5 rounded-2xl font-bold text-sm shadow-sm transition-all duration-200 ${
+												isAvailable ?
+													"bg-amber-600 text-white hover:bg-amber-700 shadow-amber-600/10 hover:shadow-lg hover:shadow-amber-600/20 active:scale-[0.98] cursor-pointer"
+												:	"bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed shadow-none"
+											}`}>
+											{isAvailable ?
+												<>
+													<ShoppingCart className="w-4 h-4" />
+													<span>Add to Order</span>
+												</>
+											:	<>
+													<Ban className="w-4 h-4 text-gray-400" />
+													<span>Out of Stock</span>
+												</>
+											}
+										</button>
 									</div>
 								</Card>
 							</motion.div>

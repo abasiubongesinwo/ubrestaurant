@@ -3,13 +3,24 @@ const API_BASE =
 	import.meta.env.VITE_API_URL_LOCAL ||
 	"https://ubrestaurant-backend.onrender.com";
 
+const getToken = () => localStorage.getItem("token");
+
+const clearAuth = () => {
+	localStorage.removeItem("token");
+	localStorage.removeItem("user");
+};
+
 const unwrapPayload = (result, fallbackKeys = []) => {
 	if (result == null) return result;
+
 	if (Array.isArray(result)) return result;
-	if (result.data != null) return result.data;
+
+	if (result.data !== undefined) return result.data;
 
 	for (const key of fallbackKeys) {
-		if (result[key] != null) return result[key];
+		if (result[key] !== undefined) {
+			return result[key];
+		}
 	}
 
 	return result;
@@ -31,53 +42,118 @@ const normalizeAuthResponse = (result) => {
 	};
 };
 
+// =====================================================
+// Core API Function
+// =====================================================
+
 const apiCall = async (endpoint, options = {}) => {
+	const token = getToken();
+
+	const headers = {
+		"Content-Type": "application/json",
+		...(token &&
+			!options.skipAuthHeader && {
+				Authorization: `Bearer ${token}`,
+			}),
+		...options.headers,
+	};
+
+	const config = {
+		...options,
+		headers,
+	};
+
+	delete config.skipAuthHeader;
+
+	const url = `${API_BASE}/api${endpoint}`;
+
+	// console.log("======================================");
+	// console.log("API Request");
+	// console.log("URL:", url);
+	// console.log("Method:", config.method || "GET");
+	// console.log("Token Exists:", !!token);
+	// console.log("======================================");
+
 	try {
-		const token = localStorage.getItem("token");
+		const response = await fetch(url, config);
 
-		const config = {
-			headers: {
-				"Content-Type": "application/json",
-				...(token &&
-					!options.skipAuthHeader && { Authorization: `Bearer ${token}` }),
-				...options.headers,
-			},
-			...options,
-		};
+		let responseBody = {};
 
-		delete config.skipAuthHeader;
-
-		const response = await fetch(`${API_BASE}/api${endpoint}`, config);
-
-		if (!response.ok) {
-			let errorMessage = `API Error: ${response.status}`;
-			try {
-				const errorData = await response.json();
-				errorMessage = errorData.message || errorMessage;
-			} catch {
-				// Ignore if response body is not JSON
-			}
-			throw new Error(errorMessage);
+		try {
+			responseBody = await response.json();
+		} catch {
+			// Empty response body
 		}
 
-		if (response.status === 204) return {};
-		return await response.json();
+		if (!response.ok) {
+			// Only expire session on protected endpoints
+			if (response.status === 401 && !endpoint.startsWith("/auth/")) {
+				clearAuth();
+
+				throw new Error("Session expired. Please login again.");
+			}
+
+			throw new Error(
+				responseBody.message ||
+					responseBody.error ||
+					`API Error (${response.status})`,
+			);
+		}
+
+		if (response.status === 204) {
+			return {};
+		}
+
+		return responseBody;
 	} catch (error) {
-		console.error(
-			`API call failed [${options.method || "GET"} ${endpoint}]:`,
-			error,
-		);
+		console.error(`API Request Failed [${config.method || "GET"} ${endpoint}]`);
+		console.error(error);
+
 		throw error;
 	}
 };
 
-// Main API service
+// =====================================================
+// API Service
+// =====================================================
+
 export const api = {
-	// Products
-	getProducts: async () => {
-		const result = await apiCall("/products");
-		return unwrapArray(result, ["products", "items"]);
+	// ==========================
+	// Authentication
+	// ==========================
+
+	login: async (credentials) => {
+		clearAuth();
+
+		return normalizeAuthResponse(
+			await apiCall("/auth/login", {
+				method: "POST",
+				body: JSON.stringify(credentials),
+				skipAuthHeader: true,
+			}),
+		);
 	},
+
+	register: async (userData) => {
+		clearAuth();
+
+		return normalizeAuthResponse(
+			await apiCall("/auth/signup", {
+				method: "POST",
+				body: JSON.stringify(userData),
+				skipAuthHeader: true,
+			}),
+		);
+	},
+
+	getMe: async () => unwrapPayload(await apiCall("/users/me"), ["user"]),
+
+	// ==========================
+	// Products
+	// ==========================
+
+	getProducts: async () =>
+		unwrapArray(await apiCall("/products"), ["products", "items"]),
 
 	toggleProductAvailability: async (id) =>
 		unwrapPayload(
@@ -87,8 +163,14 @@ export const api = {
 			["product"],
 		),
 
+	// ==========================
+	// Orders
+	// ==========================
+
 	getOrders: async () => unwrapArray(await apiCall("/orders"), ["orders"]),
+
 	getMyOrders: async () => unwrapArray(await apiCall("/orders/my"), ["orders"]),
+
 	createOrder: async (orderData) =>
 		unwrapPayload(
 			await apiCall("/orders", {
@@ -97,6 +179,7 @@ export const api = {
 			}),
 			["order"],
 		),
+
 	updateOrderStatus: async (id, status) =>
 		unwrapPayload(
 			await apiCall(`/orders/${id}`, {
@@ -106,10 +189,12 @@ export const api = {
 			["order"],
 		),
 
-	// Users / Customers
+	// ==========================
+	// Users
+	// ==========================
+
 	getCustomers: async () =>
 		unwrapArray(await apiCall("/users/customers"), ["customers", "users"]),
-	getMe: async () => unwrapPayload(await apiCall("/users/me"), ["user"]),
 
 	updateUserRole: async (id, role) =>
 		unwrapPayload(
@@ -121,39 +206,21 @@ export const api = {
 		),
 
 	deleteUser: async (id) =>
-		await apiCall(`/users/${id}`, {
+		apiCall(`/users/${id}`, {
 			method: "DELETE",
 		}),
 
-	login: async (credentials) => {
-		localStorage.removeItem("token");
-		return normalizeAuthResponse(
-			await apiCall("/auth/login", {
-				method: "POST",
-				body: JSON.stringify(credentials),
-				skipAuthHeader: true,
-			}),
-		);
-	},
+	// ==========================
+	// Payments
+	// ==========================
 
-	register: async (userData) => {
-		localStorage.removeItem("token");
-		return normalizeAuthResponse(
-			await apiCall("/auth/signup", {
-				method: "POST",
-				body: JSON.stringify(userData),
-				skipAuthHeader: true,
-			}),
-		);
-	},
-
-	// Payment
-	initializePayment: (paymentData) =>
+	initializePayment: async (paymentData) =>
 		apiCall("/payment/initialize", {
 			method: "POST",
 			body: JSON.stringify(paymentData),
 		}),
-	verifyPayment: (reference) => apiCall(`/payment/verify/${reference}`),
+
+	verifyPayment: async (reference) => apiCall(`/payment/verify/${reference}`),
 };
 
 export default api;

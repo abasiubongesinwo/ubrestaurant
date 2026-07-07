@@ -29,6 +29,7 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
+import AdminSettings from "./pages/AdminSettings";
 
 function AppContent() {
 	const location = useLocation();
@@ -61,7 +62,7 @@ function AppContent() {
 							<Route path="dashboard" element={<AdminDashboard />} />
 							<Route path="orders" element={<OrderTable />} />
 							<Route path="customers" element={<AdminCustomers />} />
-							<Route path="settings" element={<div>Settings Page</div>} />
+							<Route path="settings" element={<AdminSettings />} />
 							<Route index element={<AdminDashboard />} />
 						</Route>
 
@@ -70,7 +71,7 @@ function AppContent() {
 							element={
 								<div className="min-h-[60vh] flex items-center justify-center">
 									<div className="text-center p-8 max-w-md">
-										<h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
+										<h1 className="text-9xl md:text-6xl font-bold text-gray-900">
 											404
 										</h1>
 										<p className="text-xl text-gray-600 mb-8">Page not found</p>

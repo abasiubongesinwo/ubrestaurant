@@ -77,60 +77,68 @@ const Contact = () => {
 
 	return (
 		<div className="min-h-screen bg-gray-50">
-			<Section className="pt-32 pb-20">
-				<motion.div
-					className="text-center mb-16"
-					initial={{ opacity: 0, y: 30 }}
-					whileInView={{ opacity: 1, y: 0 }}>
-					<h1 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-gray-900 to-amber-600 bg-clip-text text-transparent mb-6 tracking-tight">
-						Order or Send Us a Request
-					</h1>
-					<p className="text-xl text-gray-600 max-w-3xl mx-auto">
-						Need help with catering, delivery schedule, or custom meals? We are
-						here to help.
-					</p>
-				</motion.div>
+			{/* Hero Header Context Banner */}
+			<Section className="bg-gradient-to-r from-amber-950 to-amber-900 text-white px-4 py-16 sm:py-24">
+				<div className="max-w-4xl mx-auto text-center">
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.6 }}>
+						<h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-4 sm:mb-6 leading-tight">
+							Order or Send Us a Request
+						</h1>
+						<p className="text-base sm:text-xl text-amber-100/80 max-w-2xl mx-auto font-medium">
+							Need help with catering, delivery schedule, or custom meals? We
+							are here to help.
+						</p>
+					</motion.div>
+				</div>
+			</Section>
 
+			{/* Core Interaction Layer */}
+			<Section className="py-12 sm:py-16 px-4 max-w-7xl mx-auto w-full">
 				{isSubmitted ?
 					<motion.div
-						initial={{ opacity: 0, scale: 0.95 }}
+						initial={{ opacity: 0, scale: 0.98 }}
 						animate={{ opacity: 1, scale: 1 }}
 						className="max-w-lg mx-auto">
-						<Card className="text-center p-16 shadow-xl">
-							<div className="w-28 h-28 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-8">
-								<Send className="w-14 h-14 text-emerald-600" />
+						<Card className="text-center p-8 sm:p-16 border border-gray-100 shadow-xl bg-white rounded-3xl">
+							<div className="w-20 h-20 bg-emerald-50 border border-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+								<Send className="w-10 h-10 text-emerald-600" />
 							</div>
-							<h2 className="text-4xl font-bold text-gray-900 mb-4">
+							<h2 className="text-3xl font-extrabold text-gray-900 mb-3">
 								Thank You!
 							</h2>
-							<p className="text-xl text-gray-600 mb-10">
+							<p className="text-base text-gray-500 mb-8 max-w-sm mx-auto leading-relaxed">
 								Your request has been received. We’ll contact you shortly about
 								your order.
 							</p>
 							<Button
 								onClick={() => setIsSubmitted(false)}
 								size="lg"
-								className="px-12">
+								className="w-full sm:w-auto px-10 rounded-xl font-bold shadow-md shadow-amber-600/10">
 								Send Another Request
 							</Button>
 						</Card>
 					</motion.div>
-				:	<div className="grid lg:grid-cols-5 gap-12 max-w-7xl mx-auto">
+				:	<div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
+						{/* Form Frame Block */}
 						<motion.div
-							initial={{ opacity: 0, x: -40 }}
+							initial={{ opacity: 0, x: -20 }}
 							whileInView={{ opacity: 1, x: 0 }}
-							className="lg:col-span-3">
-							<Card className="p-10 lg:p-14">
-								<h3 className="text-3xl font-bold text-gray-900 mb-2">
+							viewport={{ once: true }}
+							className="lg:col-span-7 w-full">
+							<Card className="p-6 sm:p-10 lg:p-12 border border-gray-100 bg-white rounded-3xl shadow-sm">
+								<h3 className="text-2xl font-extrabold text-gray-900 mb-2">
 									Send us a message
 								</h3>
-								<p className="text-gray-600 mb-10">
+								<p className="text-sm text-gray-500 mb-8">
 									Tell us your order or inquire about a custom package.
 								</p>
 
-								<form onSubmit={handleSubmit} className="space-y-8">
+								<form onSubmit={handleSubmit} className="space-y-5">
 									<div>
-										<label className="block text-sm font-semibold text-gray-700 mb-2">
+										<label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
 											Full Name *
 										</label>
 										<input
@@ -138,16 +146,22 @@ const Contact = () => {
 											name="name"
 											value={formData.name}
 											onChange={handleChange}
-											className={`w-full px-5 py-4 border rounded-2xl focus:outline-none focus:ring-4 focus:ring-amber-100 transition-all text-lg ${errors.name ? "border-red-400" : "border-gray-200 focus:border-amber-500"}`}
+											className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-base font-medium transition-all ${
+												errors.name ?
+													"border-red-300 focus:ring-red-500/10 focus:border-red-400"
+												:	"border-gray-200 focus:ring-amber-500/10 focus:border-amber-600"
+											}`}
 										/>
 										{errors.name && (
-											<p className="mt-2 text-sm text-red-600">{errors.name}</p>
+											<p className="mt-1.5 text-xs font-medium text-red-500">
+												{errors.name}
+											</p>
 										)}
 									</div>
 
-									<div className="grid md:grid-cols-2 gap-6">
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 										<div>
-											<label className="block text-sm font-semibold text-gray-700 mb-2">
+											<label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
 												Email Address *
 											</label>
 											<input
@@ -155,17 +169,21 @@ const Contact = () => {
 												name="email"
 												value={formData.email}
 												onChange={handleChange}
-												className={`w-full px-5 py-4 border rounded-2xl focus:outline-none focus:ring-4 focus:ring-amber-100 transition-all text-lg ${errors.email ? "border-red-400" : "border-gray-200 focus:border-amber-500"}`}
+												className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-base font-medium transition-all ${
+													errors.email ?
+														"border-red-300 focus:ring-red-500/10 focus:border-red-400"
+													:	"border-gray-200 focus:ring-amber-500/10 focus:border-amber-600"
+												}`}
 											/>
 											{errors.email && (
-												<p className="mt-2 text-sm text-red-600">
+												<p className="mt-1.5 text-xs font-medium text-red-500">
 													{errors.email}
 												</p>
 											)}
 										</div>
 
 										<div>
-											<label className="block text-sm font-semibold text-gray-700 mb-2">
+											<label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
 												Phone Number *
 											</label>
 											<input
@@ -173,10 +191,14 @@ const Contact = () => {
 												name="phone"
 												value={formData.phone}
 												onChange={handleChange}
-												className={`w-full px-5 py-4 border rounded-2xl focus:outline-none focus:ring-4 focus:ring-amber-100 transition-all text-lg ${errors.phone ? "border-red-400" : "border-gray-200 focus:border-amber-500"}`}
+												className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-base font-medium transition-all ${
+													errors.phone ?
+														"border-red-300 focus:ring-red-500/10 focus:border-red-400"
+													:	"border-gray-200 focus:ring-amber-500/10 focus:border-amber-600"
+												}`}
 											/>
 											{errors.phone && (
-												<p className="mt-2 text-sm text-red-600">
+												<p className="mt-1.5 text-xs font-medium text-red-500">
 													{errors.phone}
 												</p>
 											)}
@@ -184,58 +206,68 @@ const Contact = () => {
 									</div>
 
 									<div>
-										<label className="block text-sm font-semibold text-gray-700 mb-2">
+										<label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
 											Tell us about your order *
 										</label>
 										<textarea
 											name="message"
-											rows="6"
+											rows="5"
 											value={formData.message}
 											onChange={handleChange}
-											className={`w-full px-5 py-4 border rounded-2xl focus:outline-none focus:ring-4 focus:ring-amber-100 transition-all resize-y text-lg ${errors.message ? "border-red-400" : "border-gray-200 focus:border-amber-500"}`}
+											className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-base font-medium transition-all resize-none ${
+												errors.message ?
+													"border-red-300 focus:ring-red-500/10 focus:border-red-400"
+												:	"border-gray-200 focus:ring-amber-500/10 focus:border-amber-600"
+											}`}
 											placeholder="I want 5 plates of jollof rice and chicken, for delivery at 7pm..."
 										/>
 										{errors.message && (
-											<p className="mt-2 text-sm text-red-600">
+											<p className="mt-1.5 text-xs font-medium text-red-500">
 												{errors.message}
 											</p>
 										)}
 									</div>
 
-									<Button
-										type="submit"
-										size="lg"
-										className="w-full py-4 text-lg font-semibold"
-										disabled={isSubmitting}>
-										{isSubmitting ? "Sending Request..." : "Send Request"}
-									</Button>
+									<div className="pt-2">
+										<Button
+											type="submit"
+											size="lg"
+											className="w-full py-3.5 rounded-xl font-bold text-base shadow-md shadow-amber-600/10 hover:shadow-lg transition-all"
+											disabled={isSubmitting}>
+											{isSubmitting ? "Sending Request..." : "Send Request"}
+										</Button>
+									</div>
 								</form>
 							</Card>
 						</motion.div>
 
+						{/* Informational Pillar Grid */}
 						<motion.div
-							initial={{ opacity: 0, x: 40 }}
+							initial={{ opacity: 0, x: 20 }}
 							whileInView={{ opacity: 1, x: 0 }}
-							className="lg:col-span-2 space-y-6">
+							viewport={{ once: true }}
+							className="lg:col-span-5 space-y-4 w-full">
 							{contactInfo.map((info, index) => (
 								<motion.div
 									key={index}
-									initial={{ opacity: 0, y: 20 }}
+									initial={{ opacity: 0, y: 10 }}
 									whileInView={{ opacity: 1, y: 0 }}
-									transition={{ delay: index * 0.1 }}
-									className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-									<div className="flex items-start gap-4">
-										<div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
-											{" "}
-											<info.icon className="w-5 h-5 text-amber-600" />{" "}
-										</div>
-										<div>
-											<p className="text-gray-900 font-semibold">
-												{info.title}
-											</p>
-											<p className="text-gray-500">{info.value}</p>
-											<p className="text-gray-400 text-sm">{info.sub}</p>
-										</div>
+									viewport={{ once: true }}
+									transition={{ delay: index * 0.05 }}
+									className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 flex items-start gap-4">
+									<div className="w-11 h-11 bg-amber-50 border border-amber-100/60 rounded-xl flex items-center justify-center flex-shrink-0">
+										<info.icon className="w-5 h-5 text-amber-600" />
+									</div>
+									<div className="space-y-0.5">
+										<p className="text-gray-900 font-bold text-sm">
+											{info.title}
+										</p>
+										<p className="text-gray-700 font-medium text-sm leading-snug">
+											{info.value}
+										</p>
+										<p className="text-gray-400 text-xs font-medium pt-0.5">
+											{info.sub}
+										</p>
 									</div>
 								</motion.div>
 							))}

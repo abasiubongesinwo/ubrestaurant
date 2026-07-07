@@ -4,6 +4,11 @@ import { api } from "../api";
 const TOKEN_STORAGE_KEY = "token";
 const USER_STORAGE_KEY = "user";
 
+const clearStoredAuth = () => {
+	localStorage.removeItem(TOKEN_STORAGE_KEY);
+	localStorage.removeItem(USER_STORAGE_KEY);
+};
+
 const getStoredUser = () => {
 	const token = localStorage.getItem(TOKEN_STORAGE_KEY);
 	const savedUser = localStorage.getItem(USER_STORAGE_KEY);
@@ -16,8 +21,7 @@ const getStoredUser = () => {
 		return JSON.parse(savedUser);
 	} catch (error) {
 		console.error("Failed to parse stored user:", error);
-		localStorage.removeItem(TOKEN_STORAGE_KEY);
-		localStorage.removeItem(USER_STORAGE_KEY);
+		clearStoredAuth();
 		return null;
 	}
 };
@@ -25,56 +29,31 @@ const getStoredUser = () => {
 const isAdminUser = (user) => {
 	if (!user) return false;
 
-	const role = String(
-		user.role || user.type || user.roleName || "",
-	).toLowerCase();
+	const role = String(user.role || user.type || user.roleName || "")
+		.trim()
+		.toLowerCase();
 
-	return ["admin", "superadmin"].includes(role) || user.isAdmin || user.admin;
+	return ["admin", "superadmin"].includes(role);
 };
-
-// const isAdminUser = (user) => {
-// 	if (!user) return false;
-// 	const role = String(
-// 		user.role || user.type || user.roleName || "",
-// 	).toLowerCase();
-// 	return (
-// 		["admin", "superadmin"].includes(role) ||
-// 		user.isAdmin ||
-// 		user.admin ||
-// 		user.email?.toLowerCase() === "admin@ubrestaurant.com"
-// 	);
-// };
 
 const AuthContext = createContext(null);
 
 export const useAuth = () => {
 	const context = useContext(AuthContext);
+
 	if (!context) {
 		throw new Error("useAuth must be used within an AuthProvider");
 	}
+
 	return context;
 };
 
 export const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(() => getStoredUser());
+
 	const [token, setToken] = useState(localStorage.getItem(TOKEN_STORAGE_KEY));
+
 	const loading = false;
-
-	// const login = async (email, password) => {
-	// 	try {
-	// 		const data = await api.login({ email, password });
-
-	// 		localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-	// 		localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
-	// 		setUser(data.user);
-	// 		setToken(data.token);
-
-	// 		return data.user;
-	// 	} catch (error) {
-	// 		console.error("Login error:", error);
-	// 		throw error;
-	// 	}
-	// };
 
 	const login = async (email, password) => {
 		const data = await api.login({ email, password });
@@ -88,37 +67,6 @@ export const AuthProvider = ({ children }) => {
 		return data.user;
 	};
 
-	// const logout = () => {
-	// 	localStorage.removeItem(TOKEN_STORAGE_KEY);
-	// 	localStorage.removeItem(USER_STORAGE_KEY);
-	// 	setUser(null);
-	// 	setToken(null);
-	// };
-
-	const logout = () => {
-		localStorage.removeItem(TOKEN_STORAGE_KEY);
-		localStorage.removeItem(USER_STORAGE_KEY);
-
-		setToken(null);
-		setUser(null);
-	};
-
-	// const register = async (userData) => {
-	// 	try {
-	// 		const data = await api.register(userData);
-
-	// 		localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-	// 		localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
-	// 		setUser(data.user);
-	// 		setToken(data.token);
-
-	// 		return data.user;
-	// 	} catch (error) {
-	// 		console.error("Registration error:", error);
-	// 		throw error;
-	// 	}
-	// };
-
 	const register = async (userData) => {
 		const data = await api.register(userData);
 
@@ -131,6 +79,13 @@ export const AuthProvider = ({ children }) => {
 		return data.user;
 	};
 
+	const logout = () => {
+		clearStoredAuth();
+
+		setUser(null);
+		setToken(null);
+	};
+
 	const value = useMemo(
 		() => ({
 			token,
@@ -139,10 +94,10 @@ export const AuthProvider = ({ children }) => {
 			login,
 			logout,
 			register,
-			isAuthenticated: !!token && !!user,
+			isAuthenticated: Boolean(token && user),
 			isAdmin: isAdminUser(user),
 		}),
-		[loading, user, token],
+		[token, user],
 	);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

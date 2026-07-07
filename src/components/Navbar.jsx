@@ -17,6 +17,9 @@ const Navbar = () => {
 
 	const isManagement = user?.role === "admin" || user?.role === "superadmin";
 
+	const displayName =
+		isManagement ? `${user?.fullName} (${user?.role})` : user?.fullName;
+
 	useEffect(() => {
 		const handleClickOutside = (event) => {
 			if (
@@ -108,7 +111,7 @@ const Navbar = () => {
 									className="flex items-center gap-2 p-2 rounded-xl hover:bg-amber-50 transition-all">
 									<User className="w-6 h-6 text-gray-700" />
 									<span className="hidden md:block text-sm font-medium text-gray-700 capitalize">
-										{user?.role || "Profile"}
+										{displayName || "Profile"}
 									</span>
 								</button>
 
@@ -118,15 +121,21 @@ const Navbar = () => {
 										animate={{ opacity: 1, y: 0 }}
 										className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
 										{/* User Metadata Header */}
-										<div className="px-4 py-2 border-b border-gray-100">
-											<p className="text-xs text-gray-400 font-semibold tracking-wider uppercase">
-												Account
+										<div className="px-4 py-3 border-b border-gray-100">
+											<p className="text-sm font-semibold text-gray-900">
+												{user?.fullName}
 											</p>
-											<p className="text-sm font-medium text-gray-800 truncate">
+
+											{isManagement && (
+												<p className="text-xs font-semibold uppercase text-amber-600">
+													{user?.role}
+												</p>
+											)}
+
+											<p className="text-sm text-gray-500 truncate">
 												{user?.email}
 											</p>
 										</div>
-
 										{/* Dynamic UI Content based on Role Clearance */}
 										{isManagement ?
 											<div className="p-1 border-b border-gray-100 bg-amber-50/50">

@@ -90,6 +90,127 @@ const Home = () => {
 		<div>
 			<Hero />
 
+			{/* Popular Meals */}
+			<Section className="bg-gradient-to-b from-amber-50/60 to-white py-16 sm:py-10 px-4">
+				<div className="max-w-6xl mx-auto w-full">
+					{/* Section Header */}
+					<div className="text-center mb-12 sm:mb-16">
+						<h3 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-3 sm:mb-4">
+							Popular Meals This Week
+						</h3>
+						<p className="text-base sm:text-lg text-gray-600 font-medium">
+							Chef-prepared • Fresh ingredients • Naija flavors
+						</p>
+					</div>
+
+					{error ?
+						<div className="text-center py-12 text-red-600 font-medium bg-red-50 rounded-2xl border border-red-100 max-w-md mx-auto">
+							{error}
+						</div>
+					:	/* Responsive Grid System matching dashboard fluidity */
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 w-full">
+							{products.map((product, index) => (
+								<motion.div
+									key={product.id || product._id || product.title}
+									initial={{ opacity: 0, y: 20 }}
+									whileInView={{ opacity: 1, y: 0 }}
+									viewport={{ once: true, margin: "-50px" }}
+									transition={{ duration: 0.5, delay: index * 0.05 }}
+									className="group bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full w-full">
+									{/* Image Wrapper container */}
+									<div className="relative h-48 sm:h-52 w-full overflow-hidden bg-gray-50">
+										<img
+											src={product.image}
+											alt={product.title}
+											loading="lazy"
+											decoding="async"
+											fetchPriority="low"
+											className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+										/>
+										{/* Premium Floating Badge */}
+										<div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-gray-900 px-3 py-1.5 rounded-2xl text-sm font-bold shadow-sm tracking-wide">
+											{formatCurrency(product.price)}
+										</div>
+									</div>
+
+									{/* Card Content body details */}
+									<div className="p-5 sm:p-6 flex flex-col flex-1 justify-between">
+										<div className="mb-4">
+											<h4 className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-amber-600 line-clamp-1 transition-colors duration-200">
+												{product.title}
+											</h4>
+											{product.description && (
+												<p className="text-xs sm:text-sm text-gray-500 mt-1 line-clamp-2">
+													{product.description}
+												</p>
+											)}
+										</div>
+
+										<Button
+											size="md"
+											className="w-full py-3 text-sm font-semibold flex items-center justify-center gap-2 sm:gap-2.5 rounded-2xl transition-all shadow-md shadow-amber-600/10 hover:shadow-lg hover:shadow-amber-600/20"
+											onClick={() => handleAddToCart(product)}>
+											<FaShoppingCart className="w-4 h-4" />
+											Add to Cart
+										</Button>
+									</div>
+								</motion.div>
+							))}
+						</div>
+					}
+
+					{/* Bottom Menu Navigation Action Link */}
+					<div className="text-center sm:mt-16">
+						<Button
+							variant="outline"
+							size="lg"
+							asLink
+							to="/services"
+							className="px-8 py-3.5 text-base sm:text-lg font-medium rounded-2xl transition-all border-gray-200 hover:bg-gray-50">
+							See Full Menu
+						</Button>
+					</div>
+				</div>
+			</Section>
+
+			{/* Testimonials */}
+			<Section id="testimonials" className="py-10 bg-white">
+				<motion.div className="text-center mb-16">
+					<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+						Happy Customers, Real Naija Taste
+					</h2>
+				</motion.div>
+
+				<div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+					{testimonials.map((testimonial, index) => (
+						<motion.div
+							key={testimonial.author}
+							initial={{ opacity: 0, y: 30 }}
+							whileInView={{ opacity: 1, y: 0 }}
+							transition={{ delay: index * 0.15 }}>
+							<Card className="h-full p-10">
+								<div className="flex mb-6">
+									{Array.from({ length: 5 }).map((_, i) => (
+										<FaStar key={i} className="text-amber-500 w-6 h-6" />
+									))}
+								</div>
+								<p className="text-lg text-gray-700 italic leading-relaxed mb-8">
+									&ldquo;{testimonial.quote}&rdquo;
+								</p>
+								<div>
+									<p className="font-semibold text-gray-900">
+										{testimonial.author}
+									</p>
+									<p className="text-sm text-gray-500">
+										{testimonial.location}
+									</p>
+								</div>
+							</Card>
+						</motion.div>
+					))}
+				</div>
+			</Section>
+
 			{/* Highlights Section */}
 			<Section className="py-20 bg-white">
 				<motion.div className="text-center mb-16">
@@ -135,105 +256,8 @@ const Home = () => {
 				</div>
 			</Section>
 
-			{/* Popular Meals */}
-			<Section className="from-amber-50 to-white py-20">
-				<div className="text-center mb-16">
-					<h3 className="text-4xl font-bold text-gray-900 mb-4">
-						Popular Meals This Week
-					</h3>
-					<p className="text-lg text-gray-600">
-						Chef-prepared • Fresh ingredients • Naija flavors
-					</p>
-				</div>
-
-				{error ?
-					<div className="text-center py-12 text-red-600">{error}</div>
-				:	<div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-						{products.map((product, index) => (
-							<motion.div
-								key={product.id || product._id || product.title}
-								initial={{ opacity: 0, y: 30 }}
-								whileInView={{ opacity: 1, y: 0 }}
-								transition={{ delay: index * 0.1 }}
-								className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500">
-								<div className="relative h-48 overflow-hidden">
-									<img
-										src={product.image}
-										alt={product.title}
-										loading="lazy"
-										decoding="async"
-										fetchPriority="low"
-										className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-									/>
-									<div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm text-gray-900 px-4 py-1 rounded-2xl text-sm font-bold">
-										{formatCurrency(product.price)}
-									</div>
-								</div>
-
-								<div className="p-6">
-									<h4 className="font-semibold text-lg text-gray-900 mb-3 line-clamp-2">
-										{product.title}
-									</h4>
-									<Button
-										size="sm"
-										className="w-full flex items-center justify-center gap-2"
-										onClick={() => handleAddToCart(product)}>
-										<FaShoppingCart className="w-4 h-4" />
-										Add to Cart
-									</Button>
-								</div>
-							</motion.div>
-						))}
-					</div>
-				}
-
-				<div className="text-center mt-12">
-					<Button variant="outline" size="lg" asLink to="/services">
-						See Full Menu
-					</Button>
-				</div>
-			</Section>
-
-			{/* Testimonials */}
-			<Section id="testimonials" className="py-20 bg-white">
-				<motion.div className="text-center mb-16">
-					<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-						Happy Customers, Real Naija Taste
-					</h2>
-				</motion.div>
-
-				<div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-					{testimonials.map((testimonial, index) => (
-						<motion.div
-							key={testimonial.author}
-							initial={{ opacity: 0, y: 30 }}
-							whileInView={{ opacity: 1, y: 0 }}
-							transition={{ delay: index * 0.15 }}>
-							<Card className="h-full p-10">
-								<div className="flex mb-6">
-									{Array.from({ length: 5 }).map((_, i) => (
-										<FaStar key={i} className="text-amber-500 w-6 h-6" />
-									))}
-								</div>
-								<p className="text-lg text-gray-700 italic leading-relaxed mb-8">
-									&ldquo;{testimonial.quote}&rdquo;
-								</p>
-								<div>
-									<p className="font-semibold text-gray-900">
-										{testimonial.author}
-									</p>
-									<p className="text-sm text-gray-500">
-										{testimonial.location}
-									</p>
-								</div>
-							</Card>
-						</motion.div>
-					))}
-				</div>
-			</Section>
-
 			{/* CTA Section */}
-			<Section className="bg-gradient-to-br from-gray-900 to-black text-white py-24">
+			<Section className="bg-gradient-to-br from-gray-900 to-black text-white py-10">
 				<div className="text-center max-w-3xl mx-auto">
 					<motion.h2
 						className="text-4xl md:text-6xl font-bold mb-6"

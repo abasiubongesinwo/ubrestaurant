@@ -6,6 +6,7 @@ import {
 	ShoppingCart,
 	Trash2,
 	Truck,
+	MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../api";
@@ -27,6 +28,7 @@ const Cart = () => {
 	const [customerPhoneLocal, setCustomerPhoneLocal] = useState("");
 	const [customerPhoneSecondaryLocal, setCustomerPhoneSecondaryLocal] =
 		useState("");
+	const [deliveryAddressLocal, setDeliveryAddressLocal] = useState("");
 	const [paymentMode, setPaymentMode] = useState("online");
 	const [isProcessing, setIsProcessing] = useState(false);
 
@@ -50,12 +52,19 @@ const Cart = () => {
 		: isAuthenticated ? user?.phoneSecondary || ""
 		: "";
 
+	// Fallback logic for delivery address if user profile already has one saved
+	const deliveryAddress =
+		deliveryAddressLocal.trim() ? deliveryAddressLocal
+		: isAuthenticated ? user?.address || user?.deliveryAddress || ""
+		: "";
+
 	const resetCheckoutForm = () => {
 		clearCart();
 		setCustomerNameLocal("");
 		setCustomerEmailLocal("");
 		setCustomerPhoneLocal("");
 		setCustomerPhoneSecondaryLocal("");
+		setDeliveryAddressLocal("");
 		setPaymentMode("online");
 		setIsProcessing(false);
 	};
@@ -66,6 +75,7 @@ const Cart = () => {
 			customerEmail: customerEmail.trim(),
 			customerPhone: customerPhone.trim(),
 			customerPhoneSecondary: customerPhoneSecondary.trim(),
+			deliveryAddress: deliveryAddress.trim(),
 			items: items.map((item) => ({
 				productId: item.id || item._id,
 				quantity: item.quantity || 1,
@@ -115,6 +125,19 @@ const Cart = () => {
 
 		if (customerPhone.trim().length < 7 || !PHONE_PATTERN.test(customerPhone)) {
 			toast.error("Please enter a valid primary contact phone number.");
+			return;
+		}
+
+		// Address Validation
+		if (!deliveryAddress.trim()) {
+			toast.error("Please enter your physical delivery address.");
+			return;
+		}
+
+		if (deliveryAddress.trim().length < 10) {
+			toast.error(
+				"Please enter a clear, specific delivery address to help our riders.",
+			);
 			return;
 		}
 
@@ -294,6 +317,25 @@ const Cart = () => {
 								</div>
 							)}
 
+							{/* Delivery Address Field Block */}
+							{(!isAuthenticated ||
+								!(user?.address || user?.deliveryAddress)) && (
+								<div>
+									<label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
+										Delivery Address <span className="text-red-500">*</span>
+									</label>
+									<textarea
+										rows="3"
+										value={deliveryAddressLocal}
+										onChange={(event) =>
+											setDeliveryAddressLocal(event.target.value)
+										}
+										placeholder="Enter your street address, house number, apartment details, and city..."
+										className="w-full px-4 sm:px-5 py-3 border border-gray-200 rounded-2xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all text-sm sm:text-base resize-none"
+									/>
+								</div>
+							)}
+
 							<div>
 								<label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
 									Payment method
@@ -303,6 +345,7 @@ const Cart = () => {
 									onChange={(event) => setPaymentMode(event.target.value)}
 									className="w-full px-4 sm:px-5 py-3 sm:py-4 border border-gray-200 rounded-2xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all text-sm sm:text-base bg-white">
 									<option value="online">Pay Online</option>
+									<option value="cod">Cash On Delivery</option>
 								</select>
 							</div>
 						</div>

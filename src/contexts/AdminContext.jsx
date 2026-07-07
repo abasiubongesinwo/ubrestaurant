@@ -16,6 +16,7 @@ const adminReducer = (state, action) => {
 					:	o,
 				),
 			};
+
 		case "ADD_ORDER":
 			return {
 				...state,
@@ -27,7 +28,6 @@ const adminReducer = (state, action) => {
 				),
 			};
 
-		// 🔒 Super Admin Case: Update a specific user's role string inside global state
 		case "TOGGLE_USER_ROLE":
 			return {
 				...state,
@@ -36,7 +36,6 @@ const adminReducer = (state, action) => {
 				),
 			};
 
-		// 🔒 Super Admin Case: Cleanly splice out a deleted user account from local arrays
 		case "DELETE_USER":
 			return {
 				...state,
@@ -45,10 +44,19 @@ const adminReducer = (state, action) => {
 
 		case "SET_ADMIN_DATA":
 			return action.payload;
+
 		case "SET_ORDERS":
-			return { ...state, orders: action.payload };
+			return {
+				...state,
+				orders: action.payload,
+			};
+
 		case "SET_CUSTOMERS":
-			return { ...state, customers: action.payload };
+			return {
+				...state,
+				customers: action.payload,
+			};
+
 		default:
 			return state;
 	}
@@ -62,24 +70,36 @@ export const AdminProvider = ({ children }) => {
 
 	const { user } = useAuth();
 
-	// Support both basic admin roles and system owners
 	const isAdmin = user?.role === "admin" || user?.role === "superadmin";
+
 	const isSuperAdmin = user?.role === "superadmin";
 
 	useEffect(() => {
 		const loadData = async () => {
 			try {
-				// Fetch basic datasets concurrently
-				const [ordersRes, customersRes] = await Promise.all([
-					api.getOrders(),
-					api.getCustomers(),
-				]);
-				dispatch({ type: "SET_ORDERS", payload: ordersRes });
-				dispatch({ type: "SET_CUSTOMERS", payload: customersRes });
+				const requests = [api.getOrders()];
+
+				if (isSuperAdmin) {
+					requests.push(api.getCustomers());
+				}
+
+				const [ordersRes, customersRes = []] = await Promise.all(requests);
+
+				dispatch({
+					type: "SET_ORDERS",
+					payload: ordersRes,
+				});
+
+				dispatch({
+					type: "SET_CUSTOMERS",
+					payload: customersRes,
+				});
 			} catch (error) {
-				console.error("Admin data load failed:", error);
+				console.error("Admin data load failed");
+				console.error(error);
+
 				if (isAdmin) {
-					toast.error("Failed to load management database assets");
+					toast.error(error.message || "Failed to load management data.");
 				}
 			}
 		};
@@ -89,19 +109,27 @@ export const AdminProvider = ({ children }) => {
 		} else {
 			dispatch({
 				type: "SET_ADMIN_DATA",
-				payload: { orders: [], customers: [] },
+				payload: {
+					orders: [],
+					customers: [],
+				},
 			});
 		}
-	}, [isAdmin]);
+	}, [isAdmin, isSuperAdmin]);
 
 	const updateOrderStatus = async (id, status) => {
 		try {
 			await api.updateOrderStatus(id, status);
-			dispatch({ type: "UPDATE_ORDER_STATUS", payload: { id, status } });
+
+			dispatch({
+				type: "UPDATE_ORDER_STATUS",
+				payload: { id, status },
+			});
+
 			toast.success(`Order status updated to ${status}`);
 		} catch (error) {
-			console.error("Failed to update order status:", error);
-			toast.error("Failed to update order status");
+			console.error(error);
+			toast.error(error.message || "Failed to update order status.");
 			throw error;
 		}
 	};
@@ -109,49 +137,66 @@ export const AdminProvider = ({ children }) => {
 	const addOrder = async (order) => {
 		try {
 			const newOrder = await api.createOrder(order);
-			dispatch({ type: "ADD_ORDER", payload: newOrder });
+
+			dispatch({
+				type: "ADD_ORDER",
+				payload: newOrder,
+			});
+
 			toast.success("Order created successfully");
+
 			return newOrder;
 		} catch (error) {
-			console.error("Failed to create order:", error);
-			toast.error("Failed to create order");
+			console.error(error);
+			toast.error(error.message || "Failed to create order.");
 			throw error;
 		}
 	};
 
-	// 🔒 Super Admin Shared Wrapper: Mutate user structural permission flags
 	const toggleUserRole = async (userId, currentRole) => {
 		if (!isSuperAdmin) {
-			toast.error("Access Denied: Action restricted to root owners.");
+			toast.error("Only Super Admins can perform this action.");
 			return;
 		}
+
 		const newRole = currentRole === "admin" ? "user" : "admin";
+
 		try {
 			await api.updateUserRole(userId, newRole);
+
 			dispatch({
 				type: "TOGGLE_USER_ROLE",
-				payload: { id: userId, role: newRole },
+				payload: {
+					id: userId,
+					role: newRole,
+				},
 			});
-			toast.success(`User access set to ${newRole}`);
+
+			toast.success(`User role updated to ${newRole}`);
 		} catch (error) {
-			console.error("Failed to adjust user profile clearance:", error);
-			toast.error("Failed to modify target account parameters");
+			console.error(error);
+			toast.error(error.message || "Failed to update user role.");
 		}
 	};
 
-	// 🔒 Super Admin Shared Wrapper: Permanent entry destruction route
 	const deleteUser = async (userId) => {
 		if (!isSuperAdmin) {
-			toast.error("Access Denied: Action restricted to root owners.");
+			toast.error("Only Super Admins can perform this action.");
 			return;
 		}
+
 		try {
 			await api.deleteUser(userId);
-			dispatch({ type: "DELETE_USER", payload: userId });
-			toast.success("Account permanently purged from index data");
+
+			dispatch({
+				type: "DELETE_USER",
+				payload: userId,
+			});
+
+			toast.success("User deleted successfully.");
 		} catch (error) {
-			console.error("Failed to delete client ledger registration:", error);
-			toast.error("Failed to drop target user entry safely");
+			console.error(error);
+			toast.error(error.message || "Failed to delete user.");
 		}
 	};
 
@@ -173,7 +218,10 @@ export const AdminProvider = ({ children }) => {
 
 export const useAdmin = () => {
 	const context = useContext(AdminContext);
-	if (!context)
+
+	if (!context) {
 		throw new Error("useAdmin must be used within an AdminProvider");
+	}
+
 	return context;
 };
