@@ -66,7 +66,7 @@ const OrderTable = ({ orders: sourceOrders }) => {
 		return matchesSearch && matchesStatus;
 	});
 
-	const statusOptions = ["all", "pending", "processing", "completed"];
+	const statusOptions = ["all", "pending", "preparing", "completed"];
 
 	const handleStatusChange = (id, newStatus) => {
 		updateOrderStatus(id, newStatus);
@@ -252,7 +252,7 @@ const OrderTable = ({ orders: sourceOrders }) => {
 												}
 												className="px-3 py-1.5 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-500 cursor-pointer font-medium text-sm shadow-sm">
 												<option value="pending">Pending</option>
-												<option value="processing">Processing</option>
+												<option value="preparing">Preparing</option>
 												<option value="completed">Completed</option>
 											</select>
 										</td>

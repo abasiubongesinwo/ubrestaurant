@@ -86,7 +86,7 @@ function AppContent() {
 				</AnimatePresence>
 			</div>
 			<Footer />
-			<Toaster richColors position="top-right" />
+			<Toaster richColors position="top-center" />
 			<CookieMessage />
 			<WhatsappIcon />
 		</>

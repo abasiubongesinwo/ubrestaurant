@@ -15,7 +15,7 @@ const MetricsRow = ({ orders = [] }) => {
 		}, 0),
 		pending: orders.filter((o) => o.status === "pending").length,
 		preparing: orders.filter(
-			(o) => o.status === "preparing" || o.status === "processing",
+			(o) => o.status === "preparing" || o.status === "preparing",
 		).length,
 		completed: orders.filter((o) => o.status === "completed").length,
 	};

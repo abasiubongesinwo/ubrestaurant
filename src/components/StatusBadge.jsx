@@ -7,8 +7,8 @@ const StatusBadge = ({ status, className = "" }) => {
 			color: "bg-amber-100 text-amber-800 border-amber-200 ring-amber-200/50",
 			iconColor: "text-amber-600",
 		},
-		processing: {
-			label: "Processing",
+		preparing: {
+			label: "Preparing",
 			color: "bg-blue-100 text-blue-800 border-blue-200 ring-blue-200/50",
 			iconColor: "text-blue-600",
 		},
