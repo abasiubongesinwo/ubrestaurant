@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-	Clock,
-	CreditCard,
-	MapPin,
-	Save,
-	Shield,
 	Store,
+	Image,
+	Clock,
 	Truck,
+	CreditCard,
+	Globe,
 	User,
+	Save,
+	MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "../api";
@@ -16,19 +17,43 @@ const AdminSettings = () => {
 	const defaultSettings = useMemo(
 		() => ({
 			restaurantName: "",
+			tagline: "",
+
 			restaurantPhone: "",
+			restaurantSecondPhone: "",
+
 			restaurantEmail: "",
 			restaurantAddress: "",
+
+			currency: "NGN",
+
 			logo: "",
 			banner: "",
-			openingHours: { open: "08:00", close: "22:00" },
-			delivery: { fee: 0, freeDeliveryAmount: 0 },
-			payment: {
+
+			openingHours: {
+				open: "08:00",
+				close: "22:00",
+			},
+
+			delivery: {
+				fee: 0,
+				freeDeliveryThreshold: 0,
+				estimatedTime: "20-30 mins",
+			},
+
+			payments: {
 				allowCashOnDelivery: true,
 				allowOnlinePayment: true,
 				paystackPublicKey: "",
 			},
-			socialLinks: { facebook: "", instagram: "", twitter: "", whatsapp: "" },
+
+			socials: {
+				facebook: "",
+				instagram: "",
+				twitter: "",
+				tiktok: "",
+				whatsapp: "",
+			},
 		}),
 		[],
 	);
@@ -63,9 +88,9 @@ const AdminSettings = () => {
 						...defaultSettings.delivery,
 						...(data.delivery || {}),
 					},
-					payment: {
-						...defaultSettings.payment,
-						...(data.payment || {}),
+					payments: {
+						...defaultSettings.payments,
+						...(data.payments || {}),
 					},
 					socialLinks: {
 						...defaultSettings.socialLinks,
@@ -112,13 +137,6 @@ const AdminSettings = () => {
 
 	const handleChange = (e) => {
 		const { name, value, type, checked } = e.target;
-
-		// name encoding:
-		// - "restaurantName" => top-level
-		// - "openingHours.open" => nested
-		// - "delivery.fee" => nested
-		// - "payment.allowCashOnDelivery" => nested
-		// - "socialLinks.facebook" => nested
 		const parts = name.split(".");
 		if (parts.length === 1) {
 			setSettings((prev) => ({
@@ -165,31 +183,46 @@ const AdminSettings = () => {
 
 			const payload = {
 				restaurantName: settings.restaurantName,
+				tagline: settings.tagline,
+
 				restaurantPhone: settings.restaurantPhone,
+				restaurantSecondPhone: settings.restaurantSecondPhone,
+
 				restaurantEmail: settings.restaurantEmail,
 				restaurantAddress: settings.restaurantAddress,
+
+				currency: settings.currency,
+
 				logo: settings.logo,
 				banner: settings.banner,
+
 				openingHours: {
-					open: settings.openingHours?.open,
-					close: settings.openingHours?.close,
+					open: settings.openingHours.open,
+					close: settings.openingHours.close,
 				},
+
 				delivery: {
-					fee: Number(settings.delivery?.fee ?? 0),
-					freeDeliveryAmount: Number(
-						settings.delivery?.freeDeliveryAmount ?? 0,
+					fee: Number(settings.delivery.fee),
+					freeDeliveryThreshold: Number(
+						settings.delivery.freeDeliveryThreshold,
 					),
+					estimatedTime: settings.delivery.estimatedTime,
 				},
-				payment: {
-					allowCashOnDelivery: !!settings.payment?.allowCashOnDelivery,
-					allowOnlinePayment: !!settings.payment?.allowOnlinePayment,
-					paystackPublicKey: settings.payment?.paystackPublicKey ?? "",
+
+				payments: {
+					allowCashOnDelivery: settings.payments.allowCashOnDelivery,
+
+					allowOnlinePayments: settings.payments.allowOnlinePayments,
+
+					paystackPublicKey: settings.payments.paystackPublicKey,
 				},
-				socialLinks: {
-					facebook: settings.socialLinks?.facebook ?? "",
-					instagram: settings.socialLinks?.instagram ?? "",
-					twitter: settings.socialLinks?.twitter ?? "",
-					whatsapp: settings.socialLinks?.whatsapp ?? "",
+
+				socials: {
+					facebook: settings.socials.facebook,
+					instagram: settings.socials.instagram,
+					twitter: settings.socials.twitter,
+					tiktok: settings.socials.tiktok,
+					whatsapp: settings.socials.whatsapp,
 				},
 			};
 
@@ -339,10 +372,10 @@ const AdminSettings = () => {
 					/>
 				</Card>
 
-				<Card title="Payment" icon={CreditCard}>
+				<Card title="Payments" icon={CreditCard}>
 					<input
-						name="payment.paystackPublicKey"
-						value={settings.payment?.paystackPublicKey ?? ""}
+						name="payments.paystackPublicKey"
+						value={settings.payments?.paystackPublicKey ?? ""}
 						onChange={handleChange}
 						placeholder="Paystack Public Key"
 						className="w-full border rounded-xl px-4 py-3"
@@ -351,8 +384,8 @@ const AdminSettings = () => {
 					<label className="flex items-center gap-3">
 						<input
 							type="checkbox"
-							name="payment.allowCashOnDelivery"
-							checked={!!settings.payment?.allowCashOnDelivery}
+							name="payments.allowCashOnDelivery"
+							checked={!!settings.payments?.allowCashOnDelivery}
 							onChange={handleChange}
 						/>
 						Cash on Delivery
@@ -361,8 +394,8 @@ const AdminSettings = () => {
 					<label className="flex items-center gap-3">
 						<input
 							type="checkbox"
-							name="payment.allowOnlinePayment"
-							checked={!!settings.payment?.allowOnlinePayment}
+							name="payments.allowOnlinePayments"
+							checked={!!settings.payments?.allowOnlinePayments}
 							onChange={handleChange}
 						/>
 						Online Payment
