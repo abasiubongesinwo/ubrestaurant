@@ -71,8 +71,8 @@ const PaymentCallback = () => {
 						Thank you for your order!
 					</p>
 					<p className="text-gray-600 mb-6">
-						Your payment was securely processed. We've received your order items
-						and our kitchen is preparing your delicious meal right now!
+						Your payment was securely processed. We&apos;ve received your order
+						items and our kitchen is preparing your delicious meal right now!
 					</p>
 
 					{/* Visual Redirect Indicator */}
@@ -101,8 +101,8 @@ const PaymentCallback = () => {
 					Verification Failed
 				</h2>
 				<p className="text-gray-600 mb-6">
-					We couldn't verify your transaction reference with Paystack. If you
-					were debited, please contact our store support.
+					We couldn&apos;t verify your transaction reference with Paystack. If
+					you were debited, please contact our store support.
 				</p>
 				<Link
 					to="/cart"

@@ -45,6 +45,14 @@ const OrderPipeline = ({ orders, updatingId, onUpdateStatus }) => {
 								<span className="text-sm font-medium text-amber-600">
 									{formatCurrency(order.totalAmount || order.total || 0)}
 								</span>
+								{order.orderMethod === "cod" || order.paymentMethod === "cod" ?
+									<span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700">
+										Cash on Delivery
+									</span>
+								:	<span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+										Online Payment
+									</span>
+								}
 							</div>
 
 							<div className="text-sm text-gray-600 space-y-2">
@@ -93,7 +101,7 @@ const OrderPipeline = ({ orders, updatingId, onUpdateStatus }) => {
 							</div>
 						</div>
 
-						<div className="flex-shrink-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-50 flex items-center justify-end">
+						<div className="shrink-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-50 flex items-center justify-end">
 							{order.status === "completed" || order.status === "delivered" ?
 								<span className="text-sm font-semibold text-green-600 flex items-center gap-1.5 bg-green-50 px-4 py-2 rounded-xl">
 									<CheckCircle2 className="w-4 h-4" /> Ready & Dispatched

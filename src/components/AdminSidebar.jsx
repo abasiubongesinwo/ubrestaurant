@@ -4,7 +4,6 @@ import {
 	LayoutDashboard,
 	Package,
 	Users,
-	Settings,
 	ChevronLeft,
 	ChevronRight,
 } from "lucide-react";
@@ -27,8 +26,6 @@ const AdminSidebar = () => {
 		...(isSuperAdmin ?
 			[{ name: "Customers", path: "/admin/customers", icon: Users }]
 		:	[]),
-
-		{ name: "Settings", path: "/admin/settings", icon: Settings },
 	];
 
 	return (

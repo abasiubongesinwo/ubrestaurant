@@ -161,7 +161,7 @@ const AdminCustomers = () => {
 						{showCustomerOrders.orders.length > 0 ?
 							<OrderTable orders={showCustomerOrders.orders} />
 						:	<p className="text-center text-gray-500 py-8">
-								This customer hasn't placed any orders yet.
+								This customer hasn&apos;t placed any orders yet.
 							</p>
 						}
 					</div>

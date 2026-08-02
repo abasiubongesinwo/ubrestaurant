@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
 	BrowserRouter as Router,
 	Routes,
@@ -24,15 +25,19 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminCustomers from "./pages/AdminCustomers";
 import AdminLayout from "./components/AdminLayout";
 import OrderTable from "./components/OrderTable";
-import Button from "./components/Button";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
-import AdminSettings from "./pages/AdminSettings";
+import NotFound from "./pages/NotFound";
 
 function AppContent() {
 	const location = useLocation();
+	const isAdminRoute = location.pathname.startsWith("/admin");
+
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: "smooth" });
+	}, [location.pathname]);
 
 	return (
 		<>
@@ -62,30 +67,14 @@ function AppContent() {
 							<Route path="dashboard" element={<AdminDashboard />} />
 							<Route path="orders" element={<OrderTable />} />
 							<Route path="customers" element={<AdminCustomers />} />
-							<Route path="settings" element={<AdminSettings />} />
 							<Route index element={<AdminDashboard />} />
 						</Route>
 
-						<Route
-							path="*"
-							element={
-								<div className="min-h-[60vh] flex items-center justify-center">
-									<div className="text-center p-8 max-w-md">
-										<h1 className="text-9xl md:text-6xl font-bold text-gray-900">
-											404
-										</h1>
-										<p className="text-xl text-gray-600 mb-8">Page not found</p>
-										<Button as="link" href="/">
-											Go Home
-										</Button>
-									</div>
-								</div>
-							}
-						/>
+						<Route path="*" element={<NotFound />} />
 					</Routes>
 				</AnimatePresence>
 			</div>
-			<Footer />
+			{!isAdminRoute && <Footer />}
 			<Toaster richColors position="top-center" />
 			<CookieMessage />
 			<WhatsappIcon />

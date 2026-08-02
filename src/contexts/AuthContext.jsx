@@ -50,9 +50,7 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(() => getStoredUser());
-
 	const [token, setToken] = useState(localStorage.getItem(TOKEN_STORAGE_KEY));
-
 	const loading = false;
 
 	const login = async (email, password) => {
@@ -97,7 +95,7 @@ export const AuthProvider = ({ children }) => {
 			isAuthenticated: Boolean(token && user),
 			isAdmin: isAdminUser(user),
 		}),
-		[token, user],
+		[token, user, loading],
 	);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

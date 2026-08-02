@@ -12,7 +12,7 @@ import {
 import { Link } from "react-router-dom";
 import UbLogo from "/ubrestaurantlogo.png";
 
-const Footer = () => {
+const Footer = ({ siteSettings = null }) => {
 	const navLinks = [
 		{ name: "Home", path: "/" },
 		{ name: "About", path: "/about" },
@@ -28,6 +28,7 @@ const Footer = () => {
 	];
 
 	const currentYear = new Date().getFullYear();
+	const brandName = siteSettings?.restaurantName || "UB Restaurant";
 
 	return (
 		<motion.footer
@@ -41,7 +42,7 @@ const Footer = () => {
 						<div className="flex gap-5 mb-6 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent">
 							<img
 								src={UbLogo}
-								alt="UB Restaurant Logo"
+								alt={`${brandName} Logo`}
 								loading="eager"
 								decoding="async"
 								fetchPriority="high"
@@ -171,7 +172,9 @@ const Footer = () => {
 
 				<div className="border-t border-gray-800 mt-16 pt-8">
 					<div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
-						<div>© {currentYear} UB Restaurant. All rights reserved.</div>
+						<div>
+							© {currentYear} {brandName}. All rights reserved.
+						</div>
 						<div className="flex gap-6">
 							<span>
 								Made with <b>UB.Dev</b>

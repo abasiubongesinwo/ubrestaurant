@@ -6,7 +6,6 @@ import {
 	ShoppingCart,
 	Trash2,
 	Truck,
-	MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../api";
@@ -17,7 +16,7 @@ import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 
 const EMAIL_PATTERN = /\S+@\S+\.\S+/;
-const PHONE_PATTERN = /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/;
+const PHONE_PATTERN = /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s./0-9]*$/;
 
 const Cart = () => {
 	const { items, total, clearCart } = useCart();
@@ -81,7 +80,7 @@ const Cart = () => {
 				quantity: item.quantity || 1,
 				price: Number(item.price) || 0,
 			})),
-			total: Number(total) || 0,
+			totalAmount: Number(total) || 0,
 			paymentMode,
 			date: new Date().toISOString(),
 		};
@@ -90,16 +89,24 @@ const Cart = () => {
 
 		console.log("Order created successfully:", orderCreatedResponse);
 
+		resetCheckoutForm();
+
+		if (paymentMode === "cod") {
+			toast.success("Order placed successfully!", {
+				description: "Your cash-on-delivery order has been received.",
+			});
+			window.location.href = "/services";
+			return;
+		}
+
 		toast.success("Order placed successfully!", {
 			description: "Redirecting you to the secure payment screen...",
 		});
 
-		resetCheckoutForm();
-
 		if (orderCreatedResponse?.paymentUrl) {
 			window.location.href = orderCreatedResponse.paymentUrl;
 		} else {
-			window.location.href = "/orders";
+			window.location.href = "/services";
 		}
 	};
 
@@ -187,7 +194,7 @@ const Cart = () => {
 					<Link
 						to="/services"
 						className="p-2 sm:p-3 hover:bg-white rounded-2xl transition-colors bg-gray-100 sm:bg-transparent">
-						<ArrowLeft className="w-5 h-5 sm:w-6 h-6 text-gray-700" />
+						<ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
 					</Link>
 					<div>
 						<h1 className="text-2xl sm:text-4xl font-bold text-gray-900">
@@ -264,7 +271,7 @@ const Cart = () => {
 								</>
 							:	<div className="bg-green-50 border border-green-200 rounded-2xl p-3 sm:p-4 mb-4">
 									<div className="flex items-center gap-2 sm:gap-3">
-										<div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+										<div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-100 rounded-full flex items-center justify-center shrink-0">
 											<span className="text-green-600 font-semibold text-xs sm:text-sm">
 												✓
 											</span>

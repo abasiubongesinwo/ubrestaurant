@@ -6,7 +6,7 @@ import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import UbLogo from "/ubrestaurantlogo.png";
 
-const Navbar = () => {
+const Navbar = ({ siteSettings = null }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [showProfileMenu, setShowProfileMenu] = useState(false);
 	const profileMenuRef = useRef(null);
@@ -16,6 +16,7 @@ const Navbar = () => {
 	const { user, logout, isAuthenticated } = useAuth();
 
 	const isManagement = user?.role === "admin" || user?.role === "superadmin";
+	const brandName = siteSettings?.restaurantName || "UB Restaurant";
 
 	const displayName =
 		isManagement ? `${user?.fullName} (${user?.role})` : user?.fullName;
@@ -38,9 +39,8 @@ const Navbar = () => {
 		{ name: "Home", path: "/" },
 		{ name: "Menu", path: "/services" },
 		{ name: "About", path: "/about" },
-		{ name: "Gallery", path: "/gallery" },
 		{ name: "Contact", path: "/contact" },
-		// Management link shows for both admin and superadmin in main nav if there's room
+		{ name: "Gallery", path: "/gallery" },
 		...(isManagement ? [{ name: "Dashboard", path: "/admin/dashboard" }] : []),
 	];
 
@@ -61,14 +61,14 @@ const Navbar = () => {
 			animate={{ y: 0 }}
 			className="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="flex justify-between h-16">
+				<div className="flex h-16 items-center justify-between gap-3">
 					<div className="flex items-center">
 						<Link
 							to="/"
-							className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
+							className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
 							<img
 								src={UbLogo}
-								alt="UB Restaurant Logo"
+								alt={`${brandName} Logo`}
 								loading="eager"
 								decoding="async"
 								fetchPriority="high"
@@ -77,12 +77,12 @@ const Navbar = () => {
 						</Link>
 					</div>
 
-					<div className="hidden md:flex items-center space-x-6 lg:space-x-8">
+					<div className="hidden md:flex items-center gap-2 lg:gap-4">
 						{navLinks.map((link) => (
 							<Link
 								key={link.path}
 								to={link.path}
-								className={`py-2 px-3 text-base lg:text-lg font-medium rounded-lg transition-colors ${
+								className={`rounded-full px-3 py-2 text-sm font-medium transition-colors lg:text-base ${
 									location.pathname === link.path ?
 										"text-amber-600 font-semibold"
 									:	"text-gray-700 hover:text-amber-600 hover:bg-amber-50"
@@ -92,10 +92,10 @@ const Navbar = () => {
 						))}
 					</div>
 
-					<div className="flex items-center gap-2 md:gap-4">
+					<div className="flex items-center gap-2 md:gap-3">
 						<Link
 							to="/cart"
-							className="relative p-2 rounded-xl hover:bg-amber-50 transition-all">
+							className="relative rounded-full p-2 transition-all hover:bg-amber-50">
 							<ShoppingCart className="w-6 h-6 text-gray-700" />
 							{items.length > 0 && (
 								<span className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -108,7 +108,7 @@ const Navbar = () => {
 							<div className="relative" ref={profileMenuRef}>
 								<button
 									onClick={() => setShowProfileMenu(!showProfileMenu)}
-									className="flex items-center gap-2 p-2 rounded-xl hover:bg-amber-50 transition-all">
+									className="flex items-center gap-2 rounded-full p-2 transition-all hover:bg-amber-50">
 									<User className="w-6 h-6 text-gray-700" />
 									<span className="hidden md:block text-sm font-medium text-gray-700 capitalize">
 										{displayName || "Profile"}
@@ -170,7 +170,7 @@ const Navbar = () => {
 									<Link
 										key={link.path}
 										to={link.path}
-										className={`px-5 py-2 text-sm font-medium rounded-xl transition-all ${
+										className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
 											location.pathname === link.path ?
 												"bg-amber-600 text-white"
 											:	"text-gray-700 hover:bg-gray-100 border border-gray-300 hover:border-gray-400"
