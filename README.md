@@ -1,16 +1,91 @@
-# React + Vite
+# UB Restaurant
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+UB Restaurant is a modern restaurant ordering and admin management web app built with React, Vite, Tailwind CSS, and a Node.js/Express backend. It supports customer browsing, cart checkout, online and cash-on-delivery payments, and an admin dashboard for managing orders and customers.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Responsive restaurant storefront with home, about, services, gallery, contact, and cart pages
+- User authentication for customers and admins
+- Shopping cart experience with checkout flow
+- Paystack-powered online payments and cash-on-delivery support
+- Admin dashboard for viewing and managing orders
+- Clean, branded UI with a professional restaurant experience
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Frontend
 
-## Expanding the ESLint configuration
+- React 19
+- Vite
+- React Router
+- Tailwind CSS
+- Framer Motion
+- Sonner for toast notifications
+- Recharts for dashboard visuals
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Backend
+
+- Node.js
+- Express
+- MongoDB with Mongoose
+- JWT authentication
+- Joi validation
+- Paystack integration
+
+## Project Structure
+
+- `src/` — frontend React application
+- `src/pages/` — public pages and admin pages
+- `src/components/` — reusable UI components
+- `src/contexts/` — auth, cart, and admin state
+- `public/` — static assets such as the restaurant logo
+
+## Getting Started
+
+### Frontend
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Start the development server:
+   ```bash
+   npm run dev
+   ```
+3. Open the app in your browser at the local Vite URL.
+
+### Backend
+
+1. Change into the backend folder:
+   ```bash
+   cd ../ub-restaurant-backend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file with the required environment variables such as:
+   ```env
+   PORT=5000
+   MONGO_URI_LOCAL=mongodb://localhost:27017/ubrestaurant
+   JWT_SECRET=your_secret_key
+   PAYSTACK_SECRET_KEY=your_paystack_key
+   FRONTEND_URL=http://localhost:5173
+   ```
+4. Start the backend server:
+   ```bash
+   npm run dev
+   ```
+
+## Environment Notes
+
+- The frontend expects the backend to be running for authentication, products, orders, and payments.
+- Make sure MongoDB is running locally or update the connection string to your remote database.
+
+## Deployment
+
+This project can be deployed separately for the frontend and backend. The frontend is suited for Vercel or similar static hosting, while the backend can run on Render, Railway, or any Node.js hosting platform.
+
+## License
+
+This project is intended for local development and demo purposes.
