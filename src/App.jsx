@@ -30,6 +30,7 @@ import SignUp from "./pages/SignUp";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 import NotFound from "./pages/NotFound";
+import Privacy from "./pages/Privacy";
 
 function AppContent() {
 	const location = useLocation();
@@ -55,6 +56,7 @@ function AppContent() {
 						<Route path="/payment/callback" element={<PaymentCallback />} />
 						<Route path="/login" element={<Login />} />
 						<Route path="/signup" element={<SignUp />} />
+						<Route path="/privacy" element={<Privacy />} />
 
 						<Route
 							path="/admin"
