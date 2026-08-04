@@ -31,6 +31,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 import NotFound from "./pages/NotFound";
 import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import FAQ from "./pages/FAQ";
 
 function AppContent() {
 	const location = useLocation();
@@ -57,6 +59,8 @@ function AppContent() {
 						<Route path="/login" element={<Login />} />
 						<Route path="/signup" element={<SignUp />} />
 						<Route path="/privacy" element={<Privacy />} />
+						<Route path="/terms" element={<Terms />} />
+						<Route path="/faq" element={<FAQ />} />
 
 						<Route
 							path="/admin"

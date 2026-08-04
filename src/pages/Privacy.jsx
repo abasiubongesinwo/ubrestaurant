@@ -1,120 +1,130 @@
-import { Shield, Lock, Eye, Database, Cookie } from "lucide-react";
-
-const privacySections = [
-	{
-		title: "Information We Collect",
-		items: [
-			"We collect personal information such as your full name, email address, phone number, and delivery address when you create an account or place an order.",
-			"We also collect order history, payment references, and account preferences to improve your experience.",
-			"We do not collect or store your debit or credit card details. All payments are securely processed by trusted third-party payment providers.",
-		],
-	},
-	{
-		title: "How We Use Your Information",
-		items: [
-			"Process and fulfill your food orders.",
-			"Manage your account and authenticate your identity.",
-			"Provide customer support and respond to inquiries.",
-			"Send order confirmations, payment receipts, and delivery updates.",
-			"Improve our website, services, and customer experience.",
-			"Comply with legal and regulatory obligations.",
-		],
-	},
-	{
-		title: "Payment Security",
-		items: [
-			"All online payments are processed securely through trusted payment gateways.",
-			"UB Restaurant never stores your card details, PIN, CVV, or other sensitive payment information.",
-			"Payment transactions are protected using industry-standard encryption and security practices.",
-		],
-	},
-	{
-		title: "Data Protection",
-		items: [
-			"We implement appropriate technical and organizational measures to safeguard your personal information.",
-			"Your data is protected against unauthorized access, alteration, disclosure, or destruction.",
-			"Access to customer information is restricted to authorized personnel only.",
-		],
-	},
-	{
-		title: "Cookies & Analytics",
-		items: [
-			"We use cookies to improve website functionality and enhance your browsing experience.",
-			"Cookies help remember your preferences, maintain your session, and analyze website performance.",
-			"You may disable cookies through your browser settings, although some features may not function correctly.",
-		],
-	},
-	{
-		title: "Information Sharing",
-		items: [
-			"We do not sell, rent, or trade your personal information.",
-			"Information may be shared only with trusted service providers required to process payments, deliver orders, or maintain our services.",
-			"We may disclose information when required by law or to protect our legal rights.",
-		],
-	},
-	{
-		title: "Data Retention",
-		items: [
-			"We retain personal information only for as long as necessary to provide our services and comply with legal obligations.",
-			"When information is no longer required, it is securely deleted or anonymized.",
-		],
-	},
-	{
-		title: "Your Rights",
-		items: [
-			"You may request access to the personal information we hold about you.",
-			"You may update or correct inaccurate information.",
-			"You may request deletion of your account, subject to applicable legal requirements.",
-			"You may contact us regarding any questions about your privacy.",
-		],
-	},
-	{
-		title: "Children's Privacy",
-		items: [
-			"Our services are not intended for children under the applicable minimum age in your jurisdiction.",
-			"We do not knowingly collect personal information from children without appropriate authorization.",
-		],
-	},
-	{
-		title: "Changes to This Privacy Policy",
-		items: [
-			"We may update this Privacy Policy from time to time to reflect changes in our services or legal requirements.",
-			"The latest version will always be published on this page with the updated effective date.",
-		],
-	},
-	{
-		title: "Contact Us",
-		items: [
-			"If you have questions or concerns about this Privacy Policy, please contact our support team.",
-			"Email: support@ubrestaurant.com",
-			"Phone: +234 XXX XXX XXXX",
-		],
-	},
-];
+import {
+	ShieldCheck,
+	Lock,
+	CreditCard,
+	Mail,
+	Cookie,
+	UserCheck,
+} from "lucide-react";
 
 export default function Privacy() {
+	const sections = [
+		{
+			icon: <UserCheck className="w-7 h-7 text-amber-500" />,
+			title: "Information We Collect",
+			content:
+				"We collect information such as your name, email address, phone number, delivery address, account details and order history when you use our services.",
+		},
+		{
+			icon: <Lock className="w-7 h-7 text-amber-500" />,
+			title: "How We Use Your Information",
+			content:
+				"Your information helps us process orders, deliver meals, manage your account, improve our services, communicate with you and keep your account secure.",
+		},
+		{
+			icon: <CreditCard className="w-7 h-7 text-amber-500" />,
+			title: "Payment Security",
+			content:
+				"Payments are securely processed through trusted payment providers. UB Restaurant never stores your debit card number, CVV or PIN.",
+		},
+		{
+			icon: <Mail className="w-7 h-7 text-amber-500" />,
+			title: "Email Communication",
+			content:
+				"We may send order confirmations, receipts, password reset emails and important account notifications. Promotional emails are optional.",
+		},
+		{
+			icon: <Cookie className="w-7 h-7 text-amber-500" />,
+			title: "Cookies",
+			content:
+				"We use cookies to improve performance, remember your preferences, maintain login sessions and enhance your browsing experience.",
+		},
+		{
+			icon: <ShieldCheck className="w-7 h-7 text-amber-500" />,
+			title: "Your Privacy Rights",
+			content:
+				"You may request access, correction or deletion of your personal information in accordance with applicable laws.",
+		},
+	];
+
 	return (
-		<div className="space-y-8">
-			{privacySections.map((section) => (
-				<section
-					key={section.title}
-					className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-					<h2 className="text-2xl font-bold text-gray-900 mb-5">
-						{section.title}
+		<div className="bg-gradient-to-br from-slate-950 via-slate-900 to-black min-h-screen text-white">
+			{/* Hero */}
+
+			<div className="relative overflow-hidden border-b border-white/10">
+				<div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(245,158,11,0.15),transparent_60%)]" />
+
+				<div className="relative max-w-6xl mx-auto px-6 py-24 text-center">
+					<div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-amber-500/10 border border-amber-500/30 mb-8">
+						<ShieldCheck className="w-12 h-12 text-amber-400" />
+					</div>
+
+					<h1 className="text-5xl md:text-6xl font-extrabold mb-6">
+						Privacy Policy
+					</h1>
+
+					<p className="text-slate-300 max-w-3xl mx-auto text-lg leading-8">
+						Your privacy matters to us. This Privacy Policy explains how UB
+						Restaurant collects, uses and protects your personal information
+						whenever you use our services.
+					</p>
+
+					<div className="mt-8 inline-flex rounded-full bg-amber-500/10 border border-amber-500/20 px-6 py-2 text-amber-300">
+						Effective Date • August 4, 2026
+					</div>
+				</div>
+			</div>
+
+			{/* Sections */}
+
+			<div className="max-w-6xl mx-auto px-6 py-20">
+				<div className="grid md:grid-cols-2 gap-8">
+					{sections.map((section, index) => (
+						<div
+							key={index}
+							className="group rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 hover:border-amber-500/50 hover:-translate-y-1 transition duration-300">
+							<div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-6">
+								{section.icon}
+							</div>
+
+							<h2 className="text-2xl font-bold mb-4">{section.title}</h2>
+
+							<p className="text-slate-300 leading-8">{section.content}</p>
+						</div>
+					))}
+				</div>
+
+				{/* Contact */}
+
+				<div className="mt-20 rounded-3xl border border-amber-500/20 bg-gradient-to-r from-amber-500/10 to-orange-500/10 p-10">
+					<h2 className="text-3xl font-bold mb-6">
+						Questions About Your Privacy?
 					</h2>
 
-					<ul className="space-y-3">
-						{section.items.map((item, index) => (
-							<li
-								key={index}
-								className="flex items-start gap-3 text-gray-600 leading-7">
-								<span className="mt-2 h-2 w-2 rounded-full bg-green-600 flex-shrink-0" />
-								<span>{item}</span>
-							</li>
-						))}
-					</ul>
-				</section>
-			))}
+					<p className="text-slate-300 leading-8 mb-8">
+						If you have any questions regarding this Privacy Policy or the way
+						your personal information is handled, please contact our support
+						team.
+					</p>
+
+					<div className="grid md:grid-cols-3 gap-6">
+						<div className="rounded-2xl bg-white/5 p-6">
+							<h3 className="font-semibold text-amber-400 mb-2">Email</h3>
+							<p>support@ubrestaurant.com</p>
+						</div>
+
+						<div className="rounded-2xl bg-white/5 p-6">
+							<h3 className="font-semibold text-amber-400 mb-2">Website</h3>
+							<p>www.ubrestaurant.com</p>
+						</div>
+
+						<div className="rounded-2xl bg-white/5 p-6">
+							<h3 className="font-semibold text-amber-400 mb-2">Support</h3>
+							<p>Monday – Sunday</p>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 }
