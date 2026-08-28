@@ -8,7 +8,7 @@ import {
 	Truck,
 } from "lucide-react";
 import { toast } from "sonner";
-import { api } from "../api";
+import { api } from "../utils/api";
 import Button from "../components/Button";
 import CartItem from "../components/CartItem";
 import { formatCurrency } from "../components/utils";

@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom"; // ✅ Added to read post-pa
 import { motion } from "framer-motion";
 import { ShoppingCart, Ban } from "lucide-react"; // ✅ Added Ban icon for empty stock parameters
 import { toast } from "sonner";
-import { api } from "../api";
+import { api } from "../utils/api";
 import Card from "../components/Card";
 import Section from "../components/Section";
 import { formatCurrency } from "../components/utils";

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom"; // ✅ Added useNavigate
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
-import { api } from "../api";
+import { api } from "../utils/api";
 
 const PaymentCallback = () => {
 	const [searchParams] = useSearchParams();

@@ -33,6 +33,8 @@ import NotFound from "./pages/NotFound";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import FAQ from "./pages/FAQ";
+import ForgotPassword from "./pages/ForgotPassword";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function AppContent() {
 	const location = useLocation();
@@ -58,6 +60,8 @@ function AppContent() {
 						<Route path="/payment/callback" element={<PaymentCallback />} />
 						<Route path="/login" element={<Login />} />
 						<Route path="/signup" element={<SignUp />} />
+						<Route path="/forgot-password" element={<ForgotPassword />} />
+						<Route path="/verify-email" element={<VerifyEmail />} />
 						<Route path="/privacy" element={<Privacy />} />
 						<Route path="/terms" element={<Terms />} />
 						<Route path="/faq" element={<FAQ />} />

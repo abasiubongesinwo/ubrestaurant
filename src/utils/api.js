@@ -146,6 +146,45 @@ export const api = {
 		);
 	},
 
+	verifyEmail: async (email, code) =>
+		apiCall("/auth/verify-email", {
+			method: "POST",
+			body: JSON.stringify({ email, code }),
+			skipAuthHeader: true,
+		}),
+
+	resendVerificationCode: async (email) =>
+		apiCall("/auth/resend-verification", {
+			method: "POST",
+			body: JSON.stringify({ email }),
+			skipAuthHeader: true,
+		}),
+
+	forgotPassword: async (email) =>
+		apiCall("/auth/forgot-password", {
+			method: "POST",
+			body: JSON.stringify({ email }),
+			skipAuthHeader: true,
+		}),
+
+	verifyResetCode: async (email, code) =>
+		apiCall("/auth/verify-reset-code", {
+			method: "POST",
+			body: JSON.stringify({ email, code }),
+			skipAuthHeader: true,
+		}),
+
+	resetPassword: async (email, code, newPassword) =>
+		apiCall("/auth/reset-password", {
+			method: "POST",
+			body: JSON.stringify({
+				email,
+				code,
+				newPassword,
+			}),
+			skipAuthHeader: true,
+		}),
+
 	getMe: async () => unwrapPayload(await apiCall("/users/me"), ["user"]),
 
 	// ==========================

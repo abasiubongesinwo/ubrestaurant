@@ -16,7 +16,7 @@ import {
 
 import { toast } from "sonner";
 
-import { api } from "../api";
+import { api } from "../utils/api";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import Hero from "../components/Hero";

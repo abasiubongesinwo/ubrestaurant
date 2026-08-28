@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useState } from "react";
-import { api } from "../api";
+import { api } from "../utils/api";
 
 const TOKEN_STORAGE_KEY = "token";
 const USER_STORAGE_KEY = "user";
@@ -50,8 +50,15 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(() => getStoredUser());
-	const [token, setToken] = useState(localStorage.getItem(TOKEN_STORAGE_KEY));
+	const [token, setToken] = useState(() =>
+		localStorage.getItem(TOKEN_STORAGE_KEY),
+	);
+
 	const loading = false;
+
+	// =====================================================
+	// LOGIN
+	// =====================================================
 
 	const login = async (email, password) => {
 		const data = await api.login({ email, password });
@@ -65,17 +72,40 @@ export const AuthProvider = ({ children }) => {
 		return data.user;
 	};
 
+	// =====================================================
+	// REGISTER
+	// =====================================================
+
 	const register = async (userData) => {
 		const data = await api.register(userData);
 
-		localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-		localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
-
-		setToken(data.token);
-		setUser(data.user);
+		// IMPORTANT:
+		// Signup does NOT authenticate the user yet.
+		// The user must verify their email first.
 
 		return data.user;
 	};
+
+	// =====================================================
+	// COMPLETE AUTHENTICATION
+	// Used after email verification
+	// =====================================================
+
+	const completeAuthentication = (authToken, authUser) => {
+		if (!authToken || !authUser) {
+			throw new Error("Authentication data is missing.");
+		}
+
+		localStorage.setItem(TOKEN_STORAGE_KEY, authToken);
+		localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(authUser));
+
+		setToken(authToken);
+		setUser(authUser);
+	};
+
+	// =====================================================
+	// LOGOUT
+	// =====================================================
 
 	const logout = () => {
 		clearStoredAuth();
@@ -92,6 +122,7 @@ export const AuthProvider = ({ children }) => {
 			login,
 			logout,
 			register,
+			completeAuthentication,
 			isAuthenticated: Boolean(token && user),
 			isAdmin: isAdminUser(user),
 		}),

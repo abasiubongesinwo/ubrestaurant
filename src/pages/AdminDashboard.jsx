@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Loader2, Shield } from "lucide-react";
 import { toast } from "sonner";
-import { api } from "../api";
+import { api } from "../utils/api";
 import { useAuth } from "../contexts/AuthContext";
 import MetricsRow from "../components/MetricsRow";
 import OrderPipeline from "../components/OrderPipeline";
@@ -79,7 +79,9 @@ const AdminDashboard = () => {
 			toast.success(`Order updated to ${nextStatus}!`);
 			setOrders((prev) =>
 				prev.map((o) =>
-					o._id === orderId || o.id === orderId ? { ...o, status: nextStatus } : o,
+					o._id === orderId || o.id === orderId ?
+						{ ...o, status: nextStatus }
+					:	o,
 				),
 			);
 		} catch {
@@ -143,10 +145,14 @@ const AdminDashboard = () => {
 			<div className="max-w-7xl mx-auto">
 				<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10 border-b border-gray-200 pb-6">
 					<div>
-						<h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Management Portal</h1>
+						<h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+							Management Portal
+						</h1>
 						<p className="text-gray-500 mt-1">
 							Logged in as{" "}
-							<span className="font-semibold text-amber-700 capitalize">{user?.role}</span>{" "}
+							<span className="font-semibold text-amber-700 capitalize">
+								{user?.role}
+							</span>{" "}
 							({user?.fullName})
 						</p>
 					</div>
@@ -155,35 +161,38 @@ const AdminDashboard = () => {
 						<button
 							onClick={() => setActiveTab("orders")}
 							className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-								activeTab === "orders" ? "bg-white text-black shadow-sm" : "text-gray-600 hover:text-black"
-							}`}
-						>
+								activeTab === "orders" ?
+									"bg-white text-black shadow-sm"
+								:	"text-gray-600 hover:text-black"
+							}`}>
 							Orders Tracker
 						</button>
 						<button
 							onClick={() => setActiveTab("superadmin")}
 							className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${
-								activeTab === "superadmin" ? "bg-amber-950 text-white shadow-sm" : "text-gray-600 hover:text-amber-950"
-							}`}
-						>
+								activeTab === "superadmin" ?
+									"bg-amber-950 text-white shadow-sm"
+								:	"text-gray-600 hover:text-amber-950"
+							}`}>
 							<Shield className="w-4 h-4" />
 							Accounts Directory {!isSuperAdmin && "(Read-Only)"}
 						</button>
 					</div>
 				</div>
 
-				{activeTab === "orders" ? (
+				{activeTab === "orders" ?
 					<>
 						<MetricsRow orders={orders} />
-						<h2 className="text-xl font-bold text-gray-900 mb-6">Live Order Pipeline</h2>
+						<h2 className="text-xl font-bold text-gray-900 mb-6">
+							Live Order Pipeline
+						</h2>
 						<OrderPipeline
 							orders={orders}
 							updatingId={updatingId}
 							onUpdateStatus={handleUpdateStatus}
 						/>
 					</>
-				) : (
-					<UserManagementTab
+				:	<UserManagementTab
 						customers={customers}
 						customersLoading={customersLoading}
 						isSuperAdmin={isSuperAdmin}
@@ -192,7 +201,7 @@ const AdminDashboard = () => {
 						onToggleRole={handleToggleRole}
 						onDeleteUser={handleDeleteUser}
 					/>
-				)}
+				}
 			</div>
 		</div>
 	);

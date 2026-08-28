@@ -1,6 +1,6 @@
 import { createContext, useContext, useReducer, useEffect } from "react";
 import { toast } from "sonner";
-import { api } from "../api";
+import { api } from "../utils/api";
 import { useAuth } from "../contexts/AuthContext";
 
 const AdminContext = createContext(null);
