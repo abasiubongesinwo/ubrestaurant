@@ -78,11 +78,8 @@ const Cart = () => {
 			items: items.map((item) => ({
 				productId: item.id || item._id,
 				quantity: item.quantity || 1,
-				price: Number(item.price) || 0,
 			})),
-			totalAmount: Number(total) || 0,
 			paymentMode,
-			date: new Date().toISOString(),
 		};
 
 		const orderCreatedResponse = await api.createOrder(newOrderData);
