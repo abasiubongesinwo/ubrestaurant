@@ -93,8 +93,14 @@ const apiCall = async (endpoint, options = {}) => {
 				throw new Error("Session expired. Please login again.");
 			}
 
+			const validationErrors =
+				Array.isArray(responseBody.errors) ?
+					responseBody.errors.join(", ")
+				:	null;
+
 			throw new Error(
-				responseBody.message ||
+				validationErrors ||
+					responseBody.message ||
 					responseBody.error ||
 					`API Error (${response.status})`,
 			);
