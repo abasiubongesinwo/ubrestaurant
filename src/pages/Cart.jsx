@@ -400,7 +400,7 @@ const Cart = () => {
 														onChange={(event) =>
 															setCustomerEmailLocal(event.target.value)
 														}
-														placeholder="you@example.com"
+														placeholder="Enter your email"
 														className="w-full rounded-xl border border-gray-200 bg-white py-3.5 pl-11 pr-4 text-sm outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
 													/>
 												</div>
@@ -449,7 +449,7 @@ const Cart = () => {
 														onChange={(event) =>
 															setCustomerPhoneLocal(event.target.value)
 														}
-														placeholder="08012345678"
+														placeholder="Enter your phone number"
 														className="w-full rounded-xl border border-gray-200 bg-white py-3.5 pl-11 pr-4 text-sm outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
 													/>
 												</div>
