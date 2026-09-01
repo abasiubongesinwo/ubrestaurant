@@ -69,15 +69,42 @@ function AppContent() {
 						<Route
 							path="/admin"
 							element={
-								<ProtectedRoute adminOnly={true}>
-									{" "}
+								<ProtectedRoute allowedRoles={["admin", "superadmin"]}>
 									<AdminLayout />
 								</ProtectedRoute>
 							}>
-							<Route path="dashboard" element={<AdminDashboard />} />
-							<Route path="orders" element={<OrderTable />} />
-							<Route path="customers" element={<AdminCustomers />} />
-							<Route index element={<AdminDashboard />} />
+							<Route
+								path="dashboard"
+								element={
+									<ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+										<AdminDashboard />
+									</ProtectedRoute>
+								}
+							/>
+							<Route
+								path="orders"
+								element={
+									<ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+										<OrderTable />
+									</ProtectedRoute>
+								}
+							/>
+							<Route
+								path="customers"
+								element={
+									<ProtectedRoute allowedRoles={["superadmin"]}>
+										<AdminCustomers />
+									</ProtectedRoute>
+								}
+							/>
+							<Route
+								index
+								element={
+									<ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+										<AdminDashboard />
+									</ProtectedRoute>
+								}
+							/>
 						</Route>
 
 						<Route path="*" element={<NotFound />} />

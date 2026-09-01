@@ -12,6 +12,8 @@ import {
 	Smile,
 	Bike,
 	Leaf,
+	Minus,
+	Plus,
 } from "lucide-react";
 
 import { toast } from "sonner";
@@ -25,12 +27,16 @@ import { formatCurrency } from "../components/utils";
 import { useCart } from "../contexts/CartContext";
 
 const Home = () => {
-	const { addItem } = useCart();
+	const { items, addItem, updateQuantity } = useCart();
+
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 
-	// Proudly Nigerian-Owned Feautures
+	// =====================================================
+	// FEATURES
+	// =====================================================
+
 	const features = [
 		{
 			icon: ChefHat,
@@ -70,6 +76,10 @@ const Home = () => {
 		},
 	];
 
+	// =====================================================
+	// STATISTICS
+	// =====================================================
+
 	const statistics = [
 		{
 			number: "15K+",
@@ -89,7 +99,10 @@ const Home = () => {
 		},
 	];
 
-	// More relatable Nigerian testimonials
+	// =====================================================
+	// TESTIMONIALS
+	// =====================================================
+
 	const testimonials = [
 		{
 			quote:
@@ -105,17 +118,26 @@ const Home = () => {
 		},
 	];
 
+	// =====================================================
+	// FETCH PRODUCTS
+	// =====================================================
+
 	useEffect(() => {
 		const fetchProducts = async () => {
 			try {
 				setLoading(true);
+
 				const data = await api.getProducts();
+
 				const menuItems = data.filter(
 					(product) => product.category === "product",
 				);
+
 				const homeProducts = (menuItems.length ? menuItems : data).slice(0, 4);
+
 				setProducts(homeProducts);
-			} catch {
+			} catch (error) {
+				console.error(error);
 				setError("Failed to load meals");
 				toast.error("Failed to load meals");
 			} finally {
@@ -126,10 +148,60 @@ const Home = () => {
 		fetchProducts();
 	}, []);
 
+	// =====================================================
+	// GET CART QUANTITY FOR PRODUCT
+	// =====================================================
+
+	const getCartItem = (product) => {
+		const productId = product.id ?? product._id;
+
+		return items.find((item) => {
+			const itemId = item.id ?? item._id;
+
+			return String(itemId) === String(productId);
+		});
+	};
+
+	// =====================================================
+	// ADD TO CART
+	// =====================================================
+
 	const handleAddToCart = (product) => {
 		addItem(product);
+
 		toast.success(`${product.title} added to cart!`);
 	};
+
+	// =====================================================
+	// INCREASE QUANTITY
+	// =====================================================
+
+	const handleIncrease = (product) => {
+		const cartItem = getCartItem(product);
+
+		if (!cartItem) {
+			addItem(product);
+			return;
+		}
+
+		updateQuantity(cartItem.id, cartItem.quantity + 1);
+	};
+
+	// =====================================================
+	// DECREASE QUANTITY
+	// =====================================================
+
+	const handleDecrease = (product) => {
+		const cartItem = getCartItem(product);
+
+		if (!cartItem) return;
+
+		updateQuantity(cartItem.id, cartItem.quantity - 1);
+	};
+
+	// =====================================================
+	// LOADING
+	// =====================================================
 
 	if (loading) {
 		return (
@@ -143,7 +215,10 @@ const Home = () => {
 		<div>
 			<Hero />
 
-			{/* Popular Meals */}
+			{/* =====================================================
+			    POPULAR MEALS
+			===================================================== */}
+
 			<Section className="bg-gradient-to-b from-amber-50/60 to-white py-16 sm:py-10 px-4">
 				<div className="max-w-6xl mx-auto w-full">
 					{/* Section Header */}
@@ -163,87 +238,151 @@ const Home = () => {
 						</p>
 					</div>
 
+					{/* =====================================================
+					    ERROR
+					===================================================== */}
+
 					{error ?
 						<div className="text-center py-12 text-red-600 font-medium bg-red-50 rounded-2xl border border-red-100 max-w-md mx-auto">
 							{error}
 						</div>
-					:	/* Responsive Grid System matching dashboard fluidity */
-						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 w-full">
-							{products.map((product, index) => (
-								<motion.div
-									key={product.id || product._id || product.title}
-									initial={{ opacity: 0, y: 20 }}
-									whileInView={{ opacity: 1, y: 0 }}
-									viewport={{ once: true, margin: "-50px" }}
-									transition={{ duration: 0.5, delay: index * 0.05 }}
-									className="group bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col h-full w-full">
-									{/* Image Wrapper container */}
-									<div className="relative h-48 sm:h-52 w-full overflow-hidden bg-gray-50">
-										<img
-											src={product.image}
-											alt={product.title}
-											loading="lazy"
-											decoding="async"
-											fetchPriority="low"
-											className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-										/>
-										{index === 0 && (
-											<div className="absolute top-4 left-4">
-												<span className="inline-flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
-													<Flame className="w-3 h-3 fill-white" />
-													Best Seller
-												</span>
-											</div>
-										)}
-										{/* Premium Floating Badge */}
-										<div className="absolute top-4 right-4 bg-white shadow-xl rounded-full px-4 py-2">
-											<p className="font-bold text-amber-600">
-												{formatCurrency(product.price)}
-											</p>
-										</div>
-									</div>
+					:	<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 w-full">
+							{products.map((product, index) => {
+								const cartItem = getCartItem(product);
+								const quantity = cartItem?.quantity ?? 0;
+								const isInCart = quantity > 0;
 
-									{/* Card Content body details */}
-									<div className="p-5 sm:p-6 flex flex-col flex-1 justify-between">
-										<div className="mb-4">
-											<h4 className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-amber-600 line-clamp-1 transition-colors duration-200">
-												{product.title}
-											</h4>
-											<div className="flex items-center gap-2 mt-2 mb-3">
-												<div className="flex text-yellow-400">★★★★★</div>
+								return (
+									<motion.div
+										key={product.id || product._id || product.title}
+										initial={{ opacity: 0, y: 20 }}
+										whileInView={{ opacity: 1, y: 0 }}
+										viewport={{ once: true, margin: "-50px" }}
+										transition={{
+											duration: 0.5,
+											delay: index * 0.05,
+										}}
+										className="group bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col h-full w-full">
+										{/* =====================================================
+										    IMAGE
+										===================================================== */}
 
-												<span className="text-sm text-gray-500">4.9</span>
-											</div>
-											{product.description && (
-												<p className="text-xs sm:text-sm text-gray-500 mt-1 line-clamp-2">
-													{product.description}
-												</p>
+										<div className="relative h-48 sm:h-52 w-full overflow-hidden bg-gray-50">
+											<img
+												src={product.image}
+												alt={product.title}
+												loading="lazy"
+												decoding="async"
+												fetchPriority="low"
+												className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+											/>
+
+											{/* Best Seller */}
+											{index === 0 && (
+												<div className="absolute top-4 left-4">
+													<span className="inline-flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+														<Flame className="w-3 h-3 fill-white" />
+														Best Seller
+													</span>
+												</div>
 											)}
-											<div className="flex justify-between items-center mt-4 text-sm text-gray-500">
-												<div className="flex items-center gap-1">
-													<Clock3 className="w-4 h-4" />
-													<span>20–30 mins</span>
+
+											{/* Price */}
+											<div className="absolute top-4 right-4 bg-white shadow-xl rounded-full px-4 py-2">
+												<p className="font-bold text-amber-600">
+													{formatCurrency(product.price)}
+												</p>
+											</div>
+										</div>
+
+										{/* =====================================================
+										    CARD CONTENT
+										===================================================== */}
+
+										<div className="p-5 sm:p-6 flex flex-col flex-1 justify-between">
+											<div className="mb-4">
+												<h4 className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-amber-600 line-clamp-1 transition-colors duration-200">
+													{product.title}
+												</h4>
+
+												<div className="flex items-center gap-2 mt-2 mb-3">
+													<div className="flex text-yellow-400">★★★★★</div>
+
+													<span className="text-sm text-gray-500">4.9</span>
 												</div>
 
-												<span className="text-amber-600 font-medium">
-													Hot & Fresh
-												</span>
-											</div>
-										</div>
+												{product.description && (
+													<p className="text-xs sm:text-sm text-gray-500 mt-1 line-clamp-2">
+														{product.description}
+													</p>
+												)}
 
-										<Button
-											size="md"
-											className="w-full py-3 rounded-2xl font-semibold flex items-center justify-center gap-2"
-											onClick={() => handleAddToCart(product)}>
-											<ShoppingCart className="w-5 h-5" /> Add to Cart
-										</Button>
-									</div>
-								</motion.div>
-							))}
+												<div className="flex justify-between items-center mt-4 text-sm text-gray-500">
+													<div className="flex items-center gap-1">
+														<Clock3 className="w-4 h-4" />
+														<span>20–30 mins</span>
+													</div>
+
+													<span className="text-amber-600 font-medium">
+														Hot & Fresh
+													</span>
+												</div>
+											</div>
+
+											{/* =====================================================
+											    CART ACTION
+											===================================================== */}
+
+											{isInCart ?
+												<div className="w-full flex items-center justify-between bg-amber-600 rounded-2xl p-1.5 shadow-lg shadow-amber-600/10">
+													{/* Decrease */}
+													<button
+														type="button"
+														onClick={() => handleDecrease(product)}
+														className="w-11 h-11 flex items-center justify-center rounded-xl bg-white text-amber-700 hover:bg-amber-50 transition-all duration-200 active:scale-90"
+														aria-label={`Decrease ${product.title} quantity`}>
+														<Minus className="w-5 h-5" />
+													</button>
+
+													{/* Quantity */}
+													<div className="flex flex-col items-center justify-center text-white min-w-[55px]">
+														<span className="text-xs font-medium text-amber-100">
+															Quantity
+														</span>
+
+														<span className="text-xl font-extrabold leading-5">
+															{quantity}
+														</span>
+													</div>
+
+													{/* Increase */}
+													<button
+														type="button"
+														onClick={() => handleIncrease(product)}
+														className="w-11 h-11 flex items-center justify-center rounded-xl bg-white text-amber-700 hover:bg-amber-50 transition-all duration-200 active:scale-90"
+														aria-label={`Increase ${product.title} quantity`}>
+														<Plus className="w-5 h-5" />
+													</button>
+												</div>
+											:	<Button
+													size="md"
+													className="w-full py-3 rounded-2xl font-semibold flex items-center justify-center gap-2"
+													onClick={() => handleAddToCart(product)}>
+													<ShoppingCart className="w-5 h-5" />
+													Add to Cart
+												</Button>
+											}
+										</div>
+									</motion.div>
+								);
+							})}
 						</div>
 					}
 
-					{/* Bottom Menu Navigation Action Link */}
+					{/* =====================================================
+					    FULL MENU
+					===================================================== */}
+
 					<div className="text-center sm:mt-16">
 						<Button
 							variant="outline"
@@ -259,7 +398,10 @@ const Home = () => {
 				</div>
 			</Section>
 
-			{/* Testimonials */}
+			{/* =====================================================
+			    TESTIMONIALS
+			===================================================== */}
+
 			<Section id="testimonials" className="py-5 bg-white">
 				<motion.div className="text-center mb-16">
 					<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
@@ -283,13 +425,16 @@ const Home = () => {
 										/>
 									))}
 								</div>
+
 								<p className="text-lg text-gray-700 italic leading-relaxed mb-8">
 									&ldquo;{testimonial.quote}&rdquo;
 								</p>
+
 								<div>
 									<p className="font-semibold text-gray-900">
 										{testimonial.author}
 									</p>
+
 									<p className="text-sm text-gray-500">
 										{testimonial.location}
 									</p>
@@ -300,7 +445,10 @@ const Home = () => {
 				</div>
 			</Section>
 
-			{/* Restaurant Statistics */}
+			{/* =====================================================
+			    STATISTICS
+			===================================================== */}
+
 			<Section className="py-20 bg-gradient-to-r from-amber-900 to-orange-500 text-white">
 				<div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto text-center">
 					{statistics.map((stat, index) => (
@@ -320,7 +468,10 @@ const Home = () => {
 				</div>
 			</Section>
 
-			{/* Why Choose UB Restaurant */}
+			{/* =====================================================
+			    WHY CHOOSE UB
+			===================================================== */}
+
 			<Section className="py-24 bg-gray-50">
 				<div className="text-center mb-16">
 					<motion.h2
@@ -371,7 +522,10 @@ const Home = () => {
 				</div>
 			</Section>
 
-			{/* CTA Section */}
+			{/* =====================================================
+			    CTA
+			===================================================== */}
+
 			<Section className="bg-gradient-to-br from-gray-900 to-black text-white py-5">
 				<div className="text-center max-w-3xl mx-auto">
 					<motion.h2
@@ -380,9 +534,11 @@ const Home = () => {
 						whileInView={{ opacity: 1, y: 0 }}>
 						Craving Real Naija Food?
 					</motion.h2>
+
 					<p className="text-xl text-gray-300 mb-10">
 						Order now and enjoy hot, authentic Nigerian meals delivered fast
 					</p>
+
 					<Button
 						size="lg"
 						variant="primary"

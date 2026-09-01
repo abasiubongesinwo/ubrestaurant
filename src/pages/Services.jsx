@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom"; // ✅ Added to read post-payment URL context flags
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ShoppingCart, Ban } from "lucide-react"; // ✅ Added Ban icon for empty stock parameters
+import { ShoppingCart, Ban, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../utils/api";
 import Card from "../components/Card";
@@ -10,13 +10,13 @@ import { formatCurrency } from "../components/utils";
 import { useCart } from "../contexts/CartContext";
 
 const Services = () => {
-	const { addItem } = useCart();
+	const { items, addItem, updateQuantity } = useCart();
+
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [searchParams, setSearchParams] = useSearchParams(); // ✅ Catch incoming redirects
+	const [searchParams, setSearchParams] = useSearchParams();
 
 	useEffect(() => {
-		// 🌟 UX Touch: If they were just redirected here from a successful checkout, celebrate it!
 		if (
 			searchParams.get("from") === "checkout" ||
 			window.location.search.includes("reference")
@@ -25,19 +25,22 @@ const Services = () => {
 				description: "Our kitchen logs have received your order details.",
 				duration: 5000,
 			});
-			// Clean up the URL parameters so refreshing doesn't re-trigger the toast notifications
+
 			setSearchParams({}, { replace: true });
 		}
 
 		const fetchProducts = async () => {
 			try {
 				setLoading(true);
+
 				const data = await api.getProducts();
+
 				console.debug(
 					"API /products response (count):",
 					data?.length ?? 0,
 					data,
 				);
+
 				setProducts(data);
 			} catch (error) {
 				console.error(error);
@@ -50,11 +53,55 @@ const Services = () => {
 		fetchProducts();
 	}, [searchParams, setSearchParams]);
 
+	// =====================================================
+	// GET CURRENT QUANTITY FOR A PRODUCT
+	// =====================================================
+
+	const getCartItem = (product) => {
+		const productId = product.id || product._id;
+
+		return items.find(
+			(item) => String(item.id || item._id) === String(productId),
+		);
+	};
+
+	// =====================================================
+	// ADD PRODUCT
+	// =====================================================
+
 	const handleAddToCart = (item) => {
-		addItem(item);
+		addItem(item, 1);
+
 		toast.success(`${item.title} added to your order!`, {
 			description: "You can checkout online or pay cash on delivery.",
 		});
+	};
+
+	// =====================================================
+	// INCREASE QUANTITY
+	// =====================================================
+
+	const handleIncrease = (item) => {
+		const cartItem = getCartItem(item);
+
+		if (!cartItem) {
+			addItem(item, 1);
+			return;
+		}
+
+		updateQuantity(cartItem.id, cartItem.quantity + 1);
+	};
+
+	// =====================================================
+	// DECREASE QUANTITY
+	// =====================================================
+
+	const handleDecrease = (item) => {
+		const cartItem = getCartItem(item);
+
+		if (!cartItem) return;
+
+		updateQuantity(cartItem.id, cartItem.quantity - 1);
 	};
 
 	if (loading) {
@@ -77,6 +124,7 @@ const Services = () => {
 					<h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-4 sm:mb-6 leading-tight">
 						Order Delicious Meals Online
 					</h1>
+
 					<p className="text-base sm:text-xl text-amber-100/80 max-w-2xl mx-auto font-medium">
 						Browse our menu, place your order, and choose online payment or pay
 						when your food arrives.
@@ -90,6 +138,9 @@ const Services = () => {
 					{products.map((item, index) => {
 						const isAvailable =
 							item.isAvailable !== false && item.countInStock !== 0;
+
+						const cartItem = getCartItem(item);
+						const quantity = cartItem?.quantity || 0;
 
 						return (
 							<motion.div
@@ -110,19 +161,20 @@ const Services = () => {
 											alt={item.title}
 											loading="lazy"
 											decoding="async"
-											className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${!isAvailable && "opacity-40 filter grayscale"}`}
+											className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
+												!isAvailable && "opacity-40 filter grayscale"
+											}`}
 										/>
 
 										{/* Status & Price Badges */}
 										<div className="absolute inset-0 p-4 flex flex-col justify-between pointer-events-none">
 											<div className="flex justify-between items-start w-full">
-												{
-													!isAvailable ?
-														<span className="bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-md uppercase tracking-wider">
-															Sold Out
-														</span>
-													:	<div /> /* Empty spacer block */
-												}
+												{!isAvailable ?
+													<span className="bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-md uppercase tracking-wider">
+														Sold Out
+													</span>
+												:	<div />}
+
 												<span className="bg-white/90 backdrop-blur-md text-gray-900 px-3.5 py-1.5 rounded-2xl text-sm font-bold shadow-md tracking-wide">
 													{formatCurrency(item.price)}
 												</span>
@@ -134,35 +186,62 @@ const Services = () => {
 									<div className="p-5 sm:p-6 flex-1 flex flex-col justify-between gap-5">
 										<div className="space-y-2">
 											<h3
-												className={`text-lg sm:text-xl font-bold text-gray-900 line-clamp-1 group-hover:text-amber-600 transition-colors duration-200 ${!isAvailable && "text-gray-400 line-through"}`}>
+												className={`text-lg sm:text-xl font-bold text-gray-900 line-clamp-1 group-hover:text-amber-600 transition-colors duration-200 ${
+													!isAvailable && "text-gray-400 line-through"
+												}`}>
 												{item.title}
 											</h3>
+
 											<p className="text-gray-500 text-sm line-clamp-2 leading-relaxed">
 												{item.description ||
 													"Delicious premium meal crafted freshly by our chefs."}
 											</p>
 										</div>
 
-										{/* Premium Unified Action Button */}
-										<button
-											disabled={!isAvailable}
-											onClick={() => handleAddToCart(item)}
-											className={`w-full flex items-center justify-center gap-2.5 py-3.5 px-5 rounded-2xl font-bold text-sm shadow-sm transition-all duration-200 ${
-												isAvailable ?
-													"bg-amber-600 text-white hover:bg-amber-700 shadow-amber-600/10 hover:shadow-lg hover:shadow-amber-600/20 active:scale-[0.98] cursor-pointer"
-												:	"bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed shadow-none"
-											}`}>
-											{isAvailable ?
-												<>
-													<ShoppingCart className="w-4 h-4" />
-													<span>Add to Order</span>
-												</>
-											:	<>
-													<Ban className="w-4 h-4 text-gray-400" />
-													<span>Out of Stock</span>
-												</>
-											}
-										</button>
+										{/* =================================================
+										    ACTION AREA
+										================================================= */}
+
+										{!isAvailable ?
+											<button
+												disabled
+												className="w-full flex items-center justify-center gap-2.5 py-3.5 px-5 rounded-2xl font-bold text-sm bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed shadow-none">
+												<Ban className="w-4 h-4 text-gray-400" />
+												<span>Out of Stock</span>
+											</button>
+										: quantity === 0 ?
+											/* ADD TO ORDER */
+											<button
+												onClick={() => handleAddToCart(item)}
+												className="w-full flex items-center justify-center gap-2.5 py-3.5 px-5 rounded-2xl font-bold text-sm shadow-sm transition-all duration-200 bg-amber-600 text-white hover:bg-amber-700 shadow-amber-600/10 hover:shadow-lg hover:shadow-amber-600/20 active:scale-[0.98] cursor-pointer">
+												<ShoppingCart className="w-4 h-4" />
+												<span>Add to Order</span>
+											</button>
+										:	/* QUANTITY CONTROLS */
+											<div className="w-full flex items-center justify-between gap-3">
+												<button
+													type="button"
+													onClick={() => handleDecrease(item)}
+													className="h-12 w-12 shrink-0 rounded-2xl border border-amber-200 bg-amber-50 text-amber-700 flex items-center justify-center transition-all duration-200 hover:bg-amber-100 hover:border-amber-300 active:scale-95 cursor-pointer"
+													aria-label={`Decrease ${item.title} quantity`}>
+													<Minus className="w-5 h-5" />
+												</button>
+
+												<div className="flex-1 h-12 rounded-2xl bg-gray-50 border border-gray-200 flex items-center justify-center">
+													<span className="text-lg font-bold text-gray-900">
+														{quantity}
+													</span>
+												</div>
+
+												<button
+													type="button"
+													onClick={() => handleIncrease(item)}
+													className="h-12 w-12 shrink-0 rounded-2xl bg-amber-600 text-white flex items-center justify-center transition-all duration-200 hover:bg-amber-700 active:scale-95 cursor-pointer"
+													aria-label={`Increase ${item.title} quantity`}>
+													<Plus className="w-5 h-5" />
+												</button>
+											</div>
+										}
 									</div>
 								</Card>
 							</motion.div>

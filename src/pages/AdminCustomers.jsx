@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, Search, Users } from "lucide-react";
 import Button from "../components/Button";
@@ -6,6 +7,7 @@ import Modal from "../components/Modal";
 import OrderTable from "../components/OrderTable";
 import StatusBadge from "../components/StatusBadge";
 import { useAdmin } from "../contexts/AdminContext";
+import { useAuth } from "../contexts/AuthContext";
 
 const getCustomerOrders = (customer, orders) => {
 	if (Array.isArray(customer?.orders) && customer.orders.length > 0) {
@@ -19,9 +21,18 @@ const getCustomerOrders = (customer, orders) => {
 };
 
 const AdminCustomers = () => {
+	const { user } = useAuth();
 	const { customers, orders } = useAdmin();
 	const [search, setSearch] = useState("");
 	const [showCustomerOrders, setShowCustomerOrders] = useState(null);
+
+	if (!user) {
+		return <Navigate to="/login" replace />;
+	}
+
+	if (user.role !== "superadmin") {
+		return <Navigate to="/admin/dashboard" replace />;
+	}
 
 	// Safely filter customers list down by search query matching names or emails
 	const filteredCustomers = (customers || []).filter((customer) => {

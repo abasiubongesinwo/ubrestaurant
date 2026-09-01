@@ -159,6 +159,11 @@ export const AdminProvider = ({ children }) => {
 			return;
 		}
 
+		if (currentRole === "superadmin") {
+			toast.error("Superadmin accounts cannot be modified here.");
+			return;
+		}
+
 		const newRole = currentRole === "admin" ? "user" : "admin";
 
 		try {
@@ -182,6 +187,15 @@ export const AdminProvider = ({ children }) => {
 	const deleteUser = async (userId) => {
 		if (!isSuperAdmin) {
 			toast.error("Only Super Admins can perform this action.");
+			return;
+		}
+
+		const targetUser = state.customers.find(
+			(customer) => customer._id === userId,
+		);
+
+		if (targetUser?.role === "superadmin") {
+			toast.error("Superadmin accounts cannot be deleted.");
 			return;
 		}
 
