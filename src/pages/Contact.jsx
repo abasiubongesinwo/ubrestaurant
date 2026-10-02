@@ -4,6 +4,7 @@ import Card from "../components/Card";
 import Button from "../components/Button";
 import { Phone, Mail, MapPin, Send } from "lucide-react";
 import { motion } from "framer-motion";
+import { api } from "../utils/api";
 
 const Contact = () => {
 	const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ const Contact = () => {
 	const [errors, setErrors] = useState({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [isSubmitted, setIsSubmitted] = useState(false);
+	const [submitError, setSubmitError] = useState("");
 
 	const validateForm = () => {
 		const newErrors = {};
@@ -33,19 +35,21 @@ const Contact = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		if (!validateForm()) return;
 
-		if (validateForm()) {
-			setIsSubmitting(true);
+		setIsSubmitting(true);
+		setSubmitError("");
 
-			try {
-				await new Promise((resolve) => setTimeout(resolve, 1200));
-				setIsSubmitted(true);
-				setFormData({ name: "", email: "", phone: "", message: "" });
-			} catch (error) {
-				console.error("Submission error:", error);
-			} finally {
-				setIsSubmitting(false);
-			}
+		try {
+			await api.submitContactMessage(formData);
+			setIsSubmitted(true);
+			setFormData({ name: "", email: "", phone: "", message: "" });
+		} catch (error) {
+			setSubmitError(
+				error.message || "We could not send your message. Please try again.",
+			);
+		} finally {
+			setIsSubmitting(false);
 		}
 	};
 
@@ -135,6 +139,13 @@ const Contact = () => {
 								<p className="text-sm text-gray-500 mb-8">
 									Tell us your order or inquire about a custom package.
 								</p>
+								{submitError && (
+									<div
+										role="alert"
+										className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+										{submitError}
+									</div>
+								)}
 
 								<form onSubmit={handleSubmit} className="space-y-5">
 									<div>
@@ -144,6 +155,8 @@ const Contact = () => {
 										<input
 											type="text"
 											name="name"
+											maxLength={100}
+											required
 											value={formData.name}
 											onChange={handleChange}
 											className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-base font-medium transition-all ${
@@ -167,6 +180,8 @@ const Contact = () => {
 											<input
 												type="email"
 												name="email"
+												maxLength={254}
+												required
 												value={formData.email}
 												onChange={handleChange}
 												className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-base font-medium transition-all ${
@@ -189,6 +204,8 @@ const Contact = () => {
 											<input
 												type="tel"
 												name="phone"
+												maxLength={30}
+												required
 												value={formData.phone}
 												onChange={handleChange}
 												className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-base font-medium transition-all ${
@@ -212,6 +229,8 @@ const Contact = () => {
 										<textarea
 											name="message"
 											rows="5"
+											maxLength={3000}
+											required
 											value={formData.message}
 											onChange={handleChange}
 											className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-base font-medium transition-all resize-none ${

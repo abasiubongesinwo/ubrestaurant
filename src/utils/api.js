@@ -269,6 +269,13 @@ export const api = {
 	// Payments
 	// ==========================
 
+	submitContactMessage: async (contactMessage) =>
+		apiCall("/contact", {
+			method: "POST",
+			body: JSON.stringify(contactMessage),
+			skipAuthHeader: true,
+		}),
+
 	initializePayment: async (paymentData) =>
 		apiCall("/payment/initialize", {
 			method: "POST",
