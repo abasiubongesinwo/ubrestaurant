@@ -193,6 +193,15 @@ export const api = {
 
 	getMe: async () => unwrapPayload(await apiCall("/users/me"), ["user"]),
 
+	updateMyProfile: async (profileData) =>
+		unwrapPayload(
+			await apiCall("/users/me", {
+				method: "PATCH",
+				body: JSON.stringify(profileData),
+			}),
+			["user"],
+		),
+
 	// ==========================
 	// Products
 	// ==========================
@@ -214,7 +223,8 @@ export const api = {
 
 	getOrders: async () => unwrapArray(await apiCall("/orders"), ["orders"]),
 
-	getMyOrders: async () => unwrapArray(await apiCall("/orders/my"), ["orders"]),
+	getMyOrders: async () =>
+		unwrapArray(await apiCall("/orders/my-orders"), ["orders"]),
 
 	createOrder: async (orderData) =>
 		unwrapPayload(

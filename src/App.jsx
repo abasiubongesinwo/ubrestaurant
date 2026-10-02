@@ -28,6 +28,10 @@ import OrderTable from "./components/OrderTable";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import ProtectedRoute from "./components/ProtectedRoute";
+import MyOrders from "./pages/MyOrders";
+import AccountLayout from "./components/AccountLayout";
+import AccountOverview from "./pages/AccountOverview";
+import AccountProfile from "./pages/AccountProfile";
 import "./App.css";
 import NotFound from "./pages/NotFound";
 import Privacy from "./pages/Privacy";
@@ -47,7 +51,7 @@ function AppContent() {
 	return (
 		<>
 			<div className="min-h-screen bg-gray-50 pb-0">
-				<Navbar />
+				{!isAdminRoute && <Navbar />}
 
 				<AnimatePresence mode="wait">
 					<Routes location={location} key={location.pathname}>
@@ -65,6 +69,20 @@ function AppContent() {
 						<Route path="/privacy" element={<Privacy />} />
 						<Route path="/terms" element={<Terms />} />
 						<Route path="/faq" element={<FAQ />} />
+
+						<Route
+							path="/account"
+							element={
+								<ProtectedRoute allowedRoles={["user"]}>
+									<AccountLayout />
+								</ProtectedRoute>
+							}
+						>
+							<Route index element={<AccountOverview />} />
+							<Route path="orders" element={<MyOrders />} />
+							<Route path="profile" element={<AccountProfile />} />
+						</Route>
+						<Route path="/orders" element={<ProtectedRoute allowedRoles={["user"]}><MyOrders /></ProtectedRoute>} />
 
 						<Route
 							path="/admin"
@@ -113,8 +131,8 @@ function AppContent() {
 			</div>
 			{!isAdminRoute && <Footer />}
 			<Toaster richColors position="top-center" />
-			<CookieMessage />
-			<WhatsappIcon />
+			{!isAdminRoute && <CookieMessage />}
+			{!isAdminRoute && <WhatsappIcon />}
 		</>
 	);
 }

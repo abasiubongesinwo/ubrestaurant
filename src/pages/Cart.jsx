@@ -199,7 +199,7 @@ const Cart = () => {
 					</h1>
 
 					<p className="mt-3 text-gray-600 leading-relaxed">
-						You haven't added any meals yet. Browse our menu and choose
+						You haven&apos;t added any meals yet. Browse our menu and choose
 						something delicious.
 					</p>
 

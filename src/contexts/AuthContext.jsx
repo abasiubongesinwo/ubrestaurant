@@ -1,4 +1,10 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useMemo,
+	useState,
+} from "react";
 import { api } from "../utils/api";
 
 const TOKEN_STORAGE_KEY = "token";
@@ -103,6 +109,19 @@ export const AuthProvider = ({ children }) => {
 		setUser(authUser);
 	};
 
+	const updateProfile = useCallback(
+		async (profileData) => {
+			const updatedUser = await api.updateMyProfile(profileData);
+			const nextUser = { ...user, ...updatedUser };
+
+			localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
+			setUser(nextUser);
+
+			return nextUser;
+		},
+		[user],
+	);
+
 	// =====================================================
 	// LOGOUT
 	// =====================================================
@@ -123,10 +142,11 @@ export const AuthProvider = ({ children }) => {
 			logout,
 			register,
 			completeAuthentication,
+			updateProfile,
 			isAuthenticated: Boolean(token && user),
 			isAdmin: isAdminUser(user),
 		}),
-		[token, user, loading],
+		[token, user, loading, updateProfile],
 	);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

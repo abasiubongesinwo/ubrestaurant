@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2, Shield } from "lucide-react";
+import { Loader2, RefreshCw, Search, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../utils/api";
 import { useAuth } from "../contexts/AuthContext";
@@ -14,7 +14,11 @@ const AdminDashboard = () => {
 	const [customers, setCustomers] = useState([]);
 
 	const [loading, setLoading] = useState(true);
+	const [refreshing, setRefreshing] = useState(false);
 	const [customersLoading, setCustomersLoading] = useState(false);
+	const [ordersRefreshKey, setOrdersRefreshKey] = useState(0);
+	const [orderSearch, setOrderSearch] = useState("");
+	const [orderStatusFilter, setOrderStatusFilter] = useState("all");
 
 	const [activeTab, setActiveTab] = useState("orders");
 
@@ -25,6 +29,7 @@ const AdminDashboard = () => {
 	const isAdmin = user?.role === "admin" || user?.role === "superadmin";
 
 	const isSuperAdmin = user?.role === "superadmin";
+	const visibleTab = isSuperAdmin ? activeTab : "orders";
 
 	/*
 	|--------------------------------------------------------------------------
@@ -37,7 +42,7 @@ const AdminDashboard = () => {
 
 		const loadOrders = async () => {
 			try {
-				setLoading(true);
+				setRefreshing(true);
 
 				const data = await api.getOrders();
 
@@ -53,6 +58,7 @@ const AdminDashboard = () => {
 			} finally {
 				if (isActive) {
 					setLoading(false);
+					setRefreshing(false);
 				}
 			}
 		};
@@ -62,7 +68,27 @@ const AdminDashboard = () => {
 		return () => {
 			isActive = false;
 		};
-	}, []);
+	}, [ordersRefreshKey]);
+
+	const filteredOrders = orders.filter((order) => {
+		const query = orderSearch.trim().toLowerCase();
+		const matchesSearch =
+			!query ||
+			(order.customerName || order.userId?.fullName || "")
+				.toLowerCase()
+				.includes(query) ||
+			(order.customerEmail || order.userId?.email || "")
+				.toLowerCase()
+				.includes(query) ||
+			String(order._id || order.id || "")
+				.toLowerCase()
+				.includes(query);
+
+		return (
+			matchesSearch &&
+			(orderStatusFilter === "all" || order.status === orderStatusFilter)
+		);
+	});
 
 	/*
 	|--------------------------------------------------------------------------
@@ -72,13 +98,7 @@ const AdminDashboard = () => {
 	*/
 
 	useEffect(() => {
-		if (!isSuperAdmin && activeTab === "superadmin") {
-			setActiveTab("orders");
-		}
-	}, [activeTab, isSuperAdmin]);
-
-	useEffect(() => {
-		if (!isSuperAdmin || activeTab !== "superadmin") {
+		if (!isSuperAdmin || visibleTab !== "superadmin") {
 			return;
 		}
 
@@ -111,7 +131,7 @@ const AdminDashboard = () => {
 		return () => {
 			isActive = false;
 		};
-	}, [activeTab, isSuperAdmin]);
+	}, [visibleTab, isSuperAdmin]);
 
 	/*
 	|--------------------------------------------------------------------------
@@ -335,7 +355,7 @@ const AdminDashboard = () => {
 								type="button"
 								onClick={() => setActiveTab("orders")}
 								className={`whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold transition-all sm:px-5 ${
-									activeTab === "orders" ?
+									visibleTab === "orders" ?
 										"bg-white text-gray-900 shadow-sm"
 									:	"text-gray-600 hover:text-gray-900"
 								}`}>
@@ -349,7 +369,7 @@ const AdminDashboard = () => {
 									type="button"
 									onClick={() => setActiveTab("superadmin")}
 									className={`flex whitespace-nowrap items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all sm:px-5 ${
-										activeTab === "superadmin" ?
+										visibleTab === "superadmin" ?
 											"bg-amber-950 text-white shadow-sm"
 										:	"text-gray-600 hover:text-amber-950"
 									}`}>
@@ -365,17 +385,63 @@ const AdminDashboard = () => {
 				{/* ORDERS TAB */}
 				{/* ============================= */}
 
-				{activeTab === "orders" && (
+				{visibleTab === "orders" && (
 					<>
 						<MetricsRow orders={orders} />
 
 						<div className="mt-8">
-							<h2 className="mb-5 text-xl font-bold text-gray-900">
-								Live Order Pipeline
-							</h2>
+							<div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+								<div>
+									<h2 className="text-xl font-bold text-gray-900">
+										Live Order Pipeline
+									</h2>
+									<p className="mt-1 text-sm text-gray-500">
+										Showing {filteredOrders.length} of {orders.length} orders
+									</p>
+								</div>
+								<div className="flex flex-col gap-2 sm:flex-row">
+									<label className="relative min-w-0 sm:w-64">
+										<span className="sr-only">Search orders</span>
+										<Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+										<input
+											type="search"
+											value={orderSearch}
+											onChange={(event) => setOrderSearch(event.target.value)}
+											placeholder="Name, email, or order ID"
+											className="h-10 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-700/15"
+										/>
+									</label>
+									<label>
+										<span className="sr-only">Filter orders by status</span>
+										<select
+											value={orderStatusFilter}
+											onChange={(event) =>
+												setOrderStatusFilter(event.target.value)
+											}
+											className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-700/15 sm:w-40">
+											<option value="all">All statuses</option>
+											<option value="pending">Pending</option>
+											<option value="preparing">Preparing</option>
+											<option value="completed">Completed</option>
+											<option value="cancelled">Cancelled</option>
+										</select>
+									</label>
+									<button
+										type="button"
+										onClick={() => setOrdersRefreshKey((key) => key + 1)}
+										disabled={refreshing}
+										aria-label="Refresh orders"
+										title="Refresh orders"
+										className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-50 hover:text-gray-900 disabled:cursor-wait disabled:opacity-50">
+										<RefreshCw
+											className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+										/>
+									</button>
+								</div>
+							</div>
 
 							<OrderPipeline
-								orders={orders}
+								orders={filteredOrders}
 								updatingId={updatingId}
 								onUpdateStatus={handleUpdateStatus}
 							/>
@@ -387,7 +453,7 @@ const AdminDashboard = () => {
 				{/* SUPER ADMIN TAB */}
 				{/* ============================= */}
 
-				{activeTab === "superadmin" && isSuperAdmin && (
+				{visibleTab === "superadmin" && isSuperAdmin && (
 					<UserManagementTab
 						customers={customers}
 						customersLoading={customersLoading}

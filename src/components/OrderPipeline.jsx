@@ -106,7 +106,12 @@ const OrderPipeline = ({ orders, updatingId, onUpdateStatus }) => {
 								<span className="text-sm font-semibold text-green-600 flex items-center gap-1.5 bg-green-50 px-4 py-2 rounded-xl">
 									<CheckCircle2 className="w-4 h-4" /> Ready & Dispatched
 								</span>
-							:	<button
+							: order.status === "cancelled" ?
+								<span className="text-sm font-semibold text-red-700 bg-red-50 px-4 py-2 rounded-xl">
+									Order cancelled
+								</span>
+							: order.status === "pending" || order.status === "preparing" ?
+								<button
 									disabled={updatingId === id}
 									onClick={() => onUpdateStatus(id, order.status)}
 									className="px-5 py-3 rounded-xl text-sm font-medium bg-black text-white hover:bg-gray-900 transition-all disabled:opacity-50 flex items-center gap-2 shadow-sm w-full lg:w-auto justify-center">
@@ -116,7 +121,7 @@ const OrderPipeline = ({ orders, updatingId, onUpdateStatus }) => {
 										<>Start Kitchen Preparation</>
 									:	<>Mark Ready for PickUp</>}
 								</button>
-							}
+							:	null}
 						</div>
 					</motion.div>
 				);

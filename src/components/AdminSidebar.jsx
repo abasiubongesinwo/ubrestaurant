@@ -1,105 +1,150 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
+	ChevronLeft,
+	ChevronRight,
 	LayoutDashboard,
 	Package,
 	Users,
-	ChevronLeft,
-	ChevronRight,
 } from "lucide-react";
-import { useState } from "react";
-import { useAuth } from "../contexts/AuthContext"; // Dynamic role tracking helper
+import { useAuth } from "../contexts/AuthContext";
 
 const AdminSidebar = () => {
 	const [isCollapsed, setIsCollapsed] = useState(false);
+	const [isMobileOpen, setIsMobileOpen] = useState(false);
 	const location = useLocation();
-	const { user } = useAuth(); // Grab the logged-in user's data
-
+	const { user } = useAuth();
+	const shouldReduceMotion = useReducedMotion();
 	const isSuperAdmin = user?.role === "superadmin";
-
-	// Base navigation menu items available to everyone with access
 	const navItems = [
 		{ name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
 		{ name: "Orders", path: "/admin/orders", icon: Package },
-
-		// 🔒 Conditional Item: Only inject the Customer Directory if they are Super Admin
 		...(isSuperAdmin ?
 			[{ name: "Customers", path: "/admin/customers", icon: Users }]
 		:	[]),
 	];
 
+	const isActive = (path) =>
+		location.pathname === path ||
+		(path === "/admin/dashboard" && location.pathname === "/admin");
+
+	const renderLinks = (collapsed = false, onNavigate = () => {}) =>
+		navItems.map(({ name, path, icon: Icon }) => (
+			<Link
+				key={path}
+				to={path}
+				onClick={onNavigate}
+				aria-current={isActive(path) ? "page" : undefined}
+				title={collapsed ? name : undefined}
+				className={`flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors ${
+					isActive(path) ?
+						"bg-amber-50 text-amber-900 ring-1 ring-inset ring-amber-200"
+					:	"text-stone-600 hover:bg-stone-100 hover:text-stone-950"
+				} ${collapsed ? "justify-center px-0" : ""}`}>
+				<Icon
+					className={`h-[18px] w-[18px] shrink-0 ${isActive(path) ? "text-amber-700" : "text-stone-400"}`}
+				/>
+				{!collapsed && <span>{name}</span>}
+			</Link>
+		));
+
 	return (
-		<motion.aside
-			initial={false}
-			animate={{ width: isCollapsed ? 80 : 280 }}
-			className="bg-gradient-to-b from-gray-50 to-white border-r border-gray-200 shadow-lg h-screen sticky top-0 z-40">
-			{/* Sidebar Top Header Branding */}
-			<div className="p-6 border-b border-gray-100 flex items-center justify-between">
-				{!isCollapsed ?
-					<div>
-						<h1 className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mb-1">
-							UB Admin
-						</h1>
-						<p className="text-xs text-gray-400 capitalize font-medium tracking-wide">
-							{user?.role || "Management"} View
-						</p>
+		<>
+			<motion.aside
+				initial={false}
+				animate={{ width: isCollapsed ? 76 : 232 }}
+				transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
+				className="sticky top-0 hidden h-screen shrink-0 flex-col border-r border-stone-200 bg-white lg:flex">
+				<div
+					className={`flex h-16 items-center border-b border-stone-100 ${isCollapsed ? "justify-center" : "gap-3 px-5"}`}>
+					<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-600 text-white">
+						<span className="text-sm font-black">UB</span>
 					</div>
-				:	<button
-						onClick={() => setIsCollapsed(false)}
-						className="p-2 mx-auto rounded-xl hover:bg-gray-100 transition-colors">
-						<ChevronRight className="w-5 h-5 text-gray-700" />
-					</button>
-				}
-			</div>
-
-			{/* Nav links rendering loop */}
-			<nav className="p-4 space-y-2">
-				{navItems.map((item) => {
-					const Icon = item.icon;
-					// Matches active state even if on the index root fallback path
-					const active =
-						location.pathname === item.path ||
-						(item.path === "/admin/dashboard" &&
-							location.pathname === "/admin");
-
-					return (
-						<Link
-							key={item.path}
-							to={item.path}
-							className={`flex items-center space-x-3 p-4 rounded-2xl transition-all group ${
-								active ?
-									"bg-amber-50 border border-amber-200 text-amber-800 shadow-xs"
-								:	"text-gray-700 hover:bg-gray-100 hover:text-gray-900 border border-transparent"
-							} ${isCollapsed ? "justify-center space-x-0" : ""}`}
-							title={isCollapsed ? item.name : ""}>
-							<Icon
-								className={`w-6 h-6 flex-shrink-0 ${active ? "text-amber-600" : "text-gray-500 group-hover:text-amber-600 transition-colors"}`}
-							/>
-							{!isCollapsed && (
-								<span className="font-medium truncate">{item.name}</span>
-							)}
-						</Link>
-					);
-				})}
-			</nav>
-
-			{/* Collapse Toggle Footer Action Toggle Panel */}
-			<div className="absolute bottom-6 left-4 right-4">
+					{!isCollapsed && (
+						<div className="min-w-0">
+							<p className="truncate text-sm font-extrabold text-stone-950">
+								UB Restaurant
+							</p>
+							<p className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400">
+								Operations
+							</p>
+						</div>
+					)}
+				</div>
+				<nav
+					aria-label="Admin navigation"
+					className={`flex-1 space-y-1 py-5 ${isCollapsed ? "px-3" : "px-4"}`}>
+					<p
+						className={`mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-stone-400 ${isCollapsed ? "sr-only" : "px-3"}`}>
+						Workspace
+					</p>
+					{renderLinks(isCollapsed)}
+				</nav>
 				<button
-					onClick={() => setIsCollapsed(!isCollapsed)}
-					className="w-full flex items-center justify-center space-x-3 p-3 bg-gray-100 hover:bg-gray-200/80 rounded-2xl transition-all group">
+					type="button"
+					onClick={() => setIsCollapsed((collapsed) => !collapsed)}
+					aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+					className="mx-3 mb-4 flex h-10 items-center justify-center gap-2 rounded-lg text-xs font-semibold text-stone-500 transition hover:bg-stone-100 hover:text-stone-900">
 					{isCollapsed ?
-						<ChevronRight className="w-5 h-5 text-gray-600 group-hover:text-gray-900" />
+						<ChevronRight className="h-4 w-4" />
 					:	<>
-							<ChevronLeft className="w-5 h-5 text-gray-600" />
-							<span className="font-medium text-sm text-gray-800">
-								Collapse Panel
-							</span>
+							<ChevronLeft className="h-4 w-4" />
+							Collapse sidebar
 						</>
 					}
 				</button>
+			</motion.aside>
+
+			<div className="lg:hidden">
+				<button
+					type="button"
+					onClick={() => setIsMobileOpen(true)}
+					aria-label="Open admin navigation"
+					className="fixed left-4 top-3 z-50 flex h-10 w-10 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-700 shadow-sm lg:hidden">
+					<LayoutDashboard className="h-5 w-5" />
+				</button>
+				<AnimatePresence>
+					{isMobileOpen && (
+						<motion.div
+							initial={shouldReduceMotion ? false : { opacity: 0 }}
+							animate={{ opacity: 1 }}
+							exit={{ opacity: 0 }}
+							className="fixed inset-0 z-[70] bg-stone-950/35"
+							role="presentation"
+							onClick={(event) => {
+								if (event.target === event.currentTarget)
+									setIsMobileOpen(false);
+							}}>
+							<motion.aside
+								initial={shouldReduceMotion ? false : { x: -24 }}
+								animate={{ x: 0 }}
+								exit={{ x: -24 }}
+								transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
+								className="flex h-full w-[min(84vw,280px)] flex-col border-r border-stone-200 bg-white p-4 shadow-xl"
+								aria-label="Admin navigation panel">
+								<div className="flex h-12 items-center gap-3 border-b border-stone-100 pb-3">
+									<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-600 text-sm font-black text-white">
+										UB
+									</div>
+									<div>
+										<p className="text-sm font-extrabold text-stone-950">
+											UB Restaurant
+										</p>
+										<p className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400">
+											Operations
+										</p>
+									</div>
+								</div>
+								<nav aria-label="Admin navigation" className="mt-5 space-y-1">
+									{renderLinks(false, () => setIsMobileOpen(false))}
+								</nav>
+							</motion.aside>
+						</motion.div>
+					)}
+				</AnimatePresence>
 			</div>
-		</motion.aside>
+		</>
 	);
 };
 

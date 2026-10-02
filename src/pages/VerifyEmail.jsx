@@ -11,7 +11,8 @@ export default function VerifyEmail() {
 	const navigate = useNavigate();
 	const { completeAuthentication } = useAuth();
 
-	const [email, setEmail] = useState("");
+	const email =
+		location.state?.email || localStorage.getItem("verificationEmail") || "";
 	const [code, setCode] = useState(["", "", "", "", "", ""]);
 	const [loading, setLoading] = useState(false);
 	const [resending, setResending] = useState(false);
@@ -23,22 +24,13 @@ export default function VerifyEmail() {
 	useEffect(() => {
 		const emailFromState = location.state?.email;
 
-		if (emailFromState) {
-			setEmail(emailFromState);
+		if (emailFromState)
 			localStorage.setItem("verificationEmail", emailFromState);
-			return;
-		}
-
-		const savedEmail = localStorage.getItem("verificationEmail");
-
-		if (savedEmail) {
-			setEmail(savedEmail);
-			return;
-		}
+		if (email) return;
 
 		toast.error("Verification email not found.");
 		navigate("/signup", { replace: true });
-	}, [location.state, navigate]);
+	}, [email, location.state, navigate]);
 
 	// Countdown
 	useEffect(() => {
@@ -224,7 +216,7 @@ export default function VerifyEmail() {
 				</form>
 
 				<div className="mt-6 text-center">
-					<p className="text-sm text-gray-600">Didn't receive the code?</p>
+					<p className="text-sm text-gray-600">Didn&apos;t receive the code?</p>
 
 					<button
 						type="button"

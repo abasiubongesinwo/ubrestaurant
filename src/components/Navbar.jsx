@@ -1,7 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, User, LogOut, ShieldCheck } from "lucide-react";
-import { motion } from "framer-motion";
+import {
+	Menu,
+	X,
+	ShoppingCart,
+	User,
+	LogOut,
+	ShieldCheck,
+	Package,
+} from "lucide-react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import UbLogo from "/ubrestaurantlogo.png";
@@ -14,8 +22,16 @@ const Navbar = ({ siteSettings = null }) => {
 	const navigate = useNavigate();
 	const { items } = useCart();
 	const { user, logout, isAuthenticated } = useAuth();
+	const shouldReduceMotion = useReducedMotion();
+	const cartCount = items.reduce(
+		(count, item) => count + (Number(item.quantity) || 0),
+		0,
+	);
 
-	const isManagement = user?.role === "admin" || user?.role === "superadmin";
+	const userRole = String(user?.role || "")
+		.trim()
+		.toLowerCase();
+	const isManagement = userRole === "admin" || userRole === "superadmin";
 	const brandName = siteSettings?.restaurantName || "UB Restaurant";
 
 	const displayName =
@@ -41,7 +57,9 @@ const Navbar = ({ siteSettings = null }) => {
 		{ name: "About", path: "/about" },
 		{ name: "Contact", path: "/contact" },
 		{ name: "Gallery", path: "/gallery" },
-		...(isManagement ? [{ name: "Dashboard", path: "/admin/dashboard" }] : []),
+		...(isManagement ? [{ name: "Dashboard", path: "/admin/dashboard" }]
+		: isAuthenticated ? [{ name: "My Account", path: "/account" }]
+		: []),
 	];
 
 	const authLinks = [
@@ -57,8 +75,9 @@ const Navbar = ({ siteSettings = null }) => {
 
 	return (
 		<motion.nav
-			initial={{ y: -100 }}
-			animate={{ y: 0 }}
+			initial={shouldReduceMotion ? false : { y: -24, opacity: 0 }}
+			animate={{ y: 0, opacity: 1 }}
+			transition={{ duration: shouldReduceMotion ? 0 : 0.22 }}
 			className="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex h-16 items-center justify-between gap-3">
@@ -95,18 +114,32 @@ const Navbar = ({ siteSettings = null }) => {
 					<div className="flex items-center gap-2 md:gap-3">
 						<Link
 							to="/cart"
+							aria-label={`Cart, ${cartCount} ${cartCount === 1 ? "item" : "items"}`}
 							className="relative rounded-full p-2 transition-all hover:bg-amber-50">
 							<ShoppingCart className="w-6 h-6 text-gray-700" />
-							{items.length > 0 && (
-								<span className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-									{items.length > 99 ? "99+" : items.length}
-								</span>
-							)}
+							<AnimatePresence>
+								{cartCount > 0 && (
+									<motion.span
+										key={cartCount}
+										initial={
+											shouldReduceMotion ? false : { scale: 0.8, opacity: 0 }
+										}
+										animate={{ scale: 1, opacity: 1 }}
+										exit={{ scale: shouldReduceMotion ? 1 : 0.85, opacity: 0 }}
+										transition={{ duration: shouldReduceMotion ? 0 : 0.16 }}
+										aria-label={`${cartCount} items in cart`}
+										className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs font-bold rounded-full h-5 min-w-5 px-1 flex items-center justify-center">
+										{cartCount > 99 ? "99+" : cartCount}
+									</motion.span>
+								)}
+							</AnimatePresence>
 						</Link>
 
 						{isAuthenticated ?
 							<div className="relative" ref={profileMenuRef}>
 								<button
+									aria-expanded={showProfileMenu}
+									aria-label="Open account menu"
 									onClick={() => setShowProfileMenu(!showProfileMenu)}
 									className="flex items-center gap-2 rounded-full p-2 transition-all hover:bg-amber-50">
 									<User className="w-6 h-6 text-gray-700" />
@@ -151,7 +184,16 @@ const Navbar = ({ siteSettings = null }) => {
 													</span>
 												</Link>
 											</div>
-										:	null}
+										:	<div className="p-1 border-b border-gray-100 bg-amber-50/50">
+												<Link
+													to="/account"
+													onClick={() => setShowProfileMenu(false)}
+													className="flex items-center gap-2 px-3 py-2 text-sm text-amber-900 font-semibold hover:bg-amber-100/70 rounded-lg transition-colors">
+													<Package className="w-4 h-4 text-amber-600" />
+													<span>My Account</span>
+												</Link>
+											</div>
+										}
 
 										{/* Universal Logout Trigger button */}
 										<div className="p-1">
@@ -183,6 +225,10 @@ const Navbar = ({ siteSettings = null }) => {
 
 						<div className="md:hidden">
 							<button
+								aria-expanded={isOpen}
+								aria-label={
+									isOpen ? "Close navigation menu" : "Open navigation menu"
+								}
 								onClick={() => setIsOpen(!isOpen)}
 								className="p-2 rounded-xl text-gray-700 hover:text-amber-600 hover:bg-amber-50 transition-all">
 								{isOpen ?
@@ -195,82 +241,86 @@ const Navbar = ({ siteSettings = null }) => {
 			</div>
 
 			{/* Mobile Sidebar Dropdown Panel */}
-			{isOpen && (
-				<motion.div
-					initial={{ opacity: 0, height: 0 }}
-					animate={{ opacity: 1, height: "auto" }}
-					className="md:hidden bg-white border-t shadow-lg">
-					<div className="px-4 pt-4 pb-6 space-y-1">
-						{navLinks.map((link) => (
-							<Link
-								key={link.path}
-								to={link.path}
-								className={`block py-3 px-4 rounded-xl text-base font-medium ${
-									location.pathname === link.path ?
-										"text-amber-600 bg-amber-50"
-									:	"text-gray-700 hover:text-amber-600 hover:bg-amber-50"
-								}`}
-								onClick={() => setIsOpen(false)}>
-								{link.name}
-							</Link>
-						))}
+			<AnimatePresence initial={false}>
+				{isOpen && (
+					<motion.div
+						initial={shouldReduceMotion ? false : { opacity: 0, height: 0 }}
+						animate={{ opacity: 1, height: "auto" }}
+						exit={{ opacity: 0, height: 0 }}
+						transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
+						className="md:hidden overflow-hidden bg-white border-t shadow-lg">
+						<div className="px-4 pt-4 pb-6 space-y-1">
+							{navLinks.map((link) => (
+								<Link
+									key={link.path}
+									to={link.path}
+									className={`block py-3 px-4 rounded-xl text-base font-medium ${
+										location.pathname === link.path ?
+											"text-amber-600 bg-amber-50"
+										:	"text-gray-700 hover:text-amber-600 hover:bg-amber-50"
+									}`}
+									onClick={() => setIsOpen(false)}>
+									{link.name}
+								</Link>
+							))}
 
-						<div className="border-t my-4" />
+							<div className="border-t my-4" />
 
-						{isAuthenticated ?
-							<div className="space-y-2 pt-2">
-								<div className="px-4 py-2 bg-gray-50 rounded-xl">
-									<p className="text-xs text-gray-400 font-semibold uppercase">
-										{user?.role}
-									</p>
-									<p className="text-sm text-gray-700 font-medium truncate">
-										{user?.email}
-									</p>
+							{isAuthenticated ?
+								<div className="space-y-2 pt-2">
+									<div className="px-4 py-2 bg-gray-50 rounded-xl">
+										<p className="text-xs text-gray-400 font-semibold uppercase">
+											{user?.role}
+										</p>
+										<p className="text-sm text-gray-700 font-medium truncate">
+											{user?.email}
+										</p>
+									</div>
+
+									{isManagement && (
+										<Link
+											to="/admin/dashboard"
+											onClick={() => setIsOpen(false)}
+											className="w-full flex items-center gap-2 px-4 py-3 rounded-xl text-base font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 transition-all">
+											<ShieldCheck className="w-5 h-5 text-amber-600" />
+											<span>
+												{user?.role === "superadmin" ?
+													"Superadmin Portal"
+												:	"Admin Dashboard"}
+											</span>
+										</Link>
+									)}
+
+									<button
+										onClick={() => {
+											handleLogout();
+											setIsOpen(false);
+										}}
+										className="w-full flex items-center gap-2 px-4 py-3 rounded-xl text-base font-medium text-red-600 hover:bg-red-50 transition-all">
+										<LogOut className="w-5 h-5" />
+										<span>Logout</span>
+									</button>
 								</div>
-
-								{isManagement && (
-									<Link
-										to="/admin/dashboard"
-										onClick={() => setIsOpen(false)}
-										className="w-full flex items-center gap-2 px-4 py-3 rounded-xl text-base font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 transition-all">
-										<ShieldCheck className="w-5 h-5 text-amber-600" />
-										<span>
-											{user?.role === "superadmin" ?
-												"Superadmin Portal"
-											:	"Admin Dashboard"}
-										</span>
-									</Link>
-								)}
-
-								<button
-									onClick={() => {
-										handleLogout();
-										setIsOpen(false);
-									}}
-									className="w-full flex items-center gap-2 px-4 py-3 rounded-xl text-base font-medium text-red-600 hover:bg-red-50 transition-all">
-									<LogOut className="w-5 h-5" />
-									<span>Logout</span>
-								</button>
-							</div>
-						:	<div className="space-y-2 pt-2">
-								{authLinks.map((link) => (
-									<Link
-										key={link.path}
-										to={link.path}
-										className={`block py-3 px-4 rounded-xl text-base font-medium text-center ${
-											location.pathname === link.path ?
-												"bg-amber-600 text-white"
-											:	"border border-gray-300 text-gray-700 hover:bg-gray-50"
-										}`}
-										onClick={() => setIsOpen(false)}>
-										{link.name}
-									</Link>
-								))}
-							</div>
-						}
-					</div>
-				</motion.div>
-			)}
+							:	<div className="space-y-2 pt-2">
+									{authLinks.map((link) => (
+										<Link
+											key={link.path}
+											to={link.path}
+											className={`block py-3 px-4 rounded-xl text-base font-medium text-center ${
+												location.pathname === link.path ?
+													"bg-amber-600 text-white"
+												:	"border border-gray-300 text-gray-700 hover:bg-gray-50"
+											}`}
+											onClick={() => setIsOpen(false)}>
+											{link.name}
+										</Link>
+									))}
+								</div>
+							}
+						</div>
+					</motion.div>
+				)}
+			</AnimatePresence>
 		</motion.nav>
 	);
 };

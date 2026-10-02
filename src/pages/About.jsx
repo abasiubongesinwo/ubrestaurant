@@ -74,7 +74,7 @@ const About = () => {
 						className="lg:col-span-7 space-y-6">
 						<div>
 							<span className="inline-block px-4 py-1.5 bg-amber-100 text-amber-800 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">
-								Since 2012
+								Since 2026
 							</span>
 							<h2 className="text-3xl sm:text-5xl font-extrabold text-gray-900 tracking-tight">
 								Our Story

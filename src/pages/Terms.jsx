@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function Terms() {
 	return (
 		<div className="min-h-screen bg-slate-950 text-slate-300 py-24">

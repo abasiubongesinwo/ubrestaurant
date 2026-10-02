@@ -103,8 +103,8 @@ export default function FAQ() {
 					<h2 className="text-3xl font-bold mb-3">Still Have Questions?</h2>
 
 					<p className="mb-6 max-w-2xl mx-auto">
-						If you couldn't find the answer you're looking for, our support team
-						is ready to assist you.
+						If you couldn&apos;t find the answer you&apos;re looking for, our
+						support team is ready to assist you.
 					</p>
 
 					<a

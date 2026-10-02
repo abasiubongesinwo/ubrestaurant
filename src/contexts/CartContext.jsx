@@ -25,7 +25,11 @@ const normalizeCartItem = (product, quantity = 1) => {
 		return null;
 	}
 
-	const itemQuantity = Number(quantity) || 1;
+	const parsedQuantity = Number(quantity);
+	const itemQuantity =
+		Number.isFinite(parsedQuantity) ?
+			Math.max(1, Math.floor(parsedQuantity))
+		:	1;
 	const itemPrice = Number(product.price) || 0;
 	const name = product.name ?? product.title ?? "Menu Item";
 
@@ -61,13 +65,15 @@ const cartReducer = (state, action) => {
 				return state;
 			}
 
-			const existingItem = state.items.find((item) => item.id === payload.id);
+			const existingItem = state.items.find(
+				(item) => String(item.id) === String(payload.id),
+			);
 
 			if (existingItem) {
 				return withCalculatedTotal({
 					...state,
 					items: state.items.map((item) =>
-						item.id === payload.id ?
+						String(item.id) === String(payload.id) ?
 							{ ...item, quantity: item.quantity + payload.quantity }
 						:	item,
 					),
@@ -85,13 +91,13 @@ const cartReducer = (state, action) => {
 			if (quantity < 1) {
 				return withCalculatedTotal({
 					...state,
-					items: state.items.filter((item) => item.id !== id),
+					items: state.items.filter((item) => String(item.id) !== String(id)),
 				});
 			}
 			return withCalculatedTotal({
 				...state,
 				items: state.items.map((item) =>
-					item.id === id ? { ...item, quantity } : item,
+					String(item.id) === String(id) ? { ...item, quantity } : item,
 				),
 			});
 		}
@@ -99,7 +105,9 @@ const cartReducer = (state, action) => {
 		case "REMOVE_ITEM":
 			return withCalculatedTotal({
 				...state,
-				items: state.items.filter((item) => item.id !== action.payload.id),
+				items: state.items.filter(
+					(item) => String(item.id) !== String(action.payload.id),
+				),
 			});
 
 		case "CLEAR_CART":
@@ -155,9 +163,11 @@ export const CartProvider = ({ children }) => {
 	}, []);
 
 	const updateQuantity = useCallback((id, quantity) => {
+		const parsedQuantity = Number(quantity);
+		if (!Number.isFinite(parsedQuantity)) return;
 		dispatch({
 			type: "UPDATE_QUANTITY",
-			payload: { id, quantity: Number(quantity) || 1 },
+			payload: { id, quantity: Math.floor(parsedQuantity) },
 		});
 	}, []);
 
